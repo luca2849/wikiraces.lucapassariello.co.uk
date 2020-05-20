@@ -8,6 +8,7 @@ const ee = require(`../eventEmiter`);
 const roomCheck = require("../middleware/roomCheck");
 
 router.get("/join", (req, res) => {
+    util.log(JSON.stringify(ROOMS));
     if (!req.session.userId) {
         const userId = util.createId(10);
         req.session.userId = userId;

@@ -1,4 +1,5 @@
 const axios = require(`axios`);
+const fs = require("fs");
 
 // Function for creating IDs
 createId = (length) => {
@@ -34,8 +35,32 @@ getPagesWithRedirects = async (term) => {
     }
 };
 
+str_pad = (string) => {
+    return string < 10 ? "0" + string : string;
+};
+
+log = (msg) => {
+    const fileName = "msg.log";
+    // Log message to console
+    console.log(msg);
+    // Get current date
+    const d = new Date();
+    const dateString = `[${str_pad(d.getDate())}-${str_pad(
+        d.getMonth()
+    )}-${str_pad(d.getFullYear())} ${str_pad(d.getHours())}:${str_pad(
+        d.getMinutes()
+    )}:${str_pad(d.getSeconds())}] `;
+    // Append date and time to message
+    msg = dateString.toString() + msg;
+    fs.appendFile(fileName, `${msg}\n`, (err) => {
+        if (err) throw err;
+        console.log("Updated");
+    });
+};
+
 module.exports = {
     createId,
     toSentenceCase,
     getPagesWithRedirects,
+    log,
 };
