@@ -1,0 +1,171 @@
+/* General */
+html,
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+.title {
+    border: none;
+    letter-spacing: 1px;
+    word-spacing: 2px;
+    padding-left: 10px;
+}
+.titleContainer {
+    margin: 20px 0;
+    border-bottom: 6px solid transparent;
+    border-image: linear-gradient(
+        90deg,
+        rgba(131, 58, 180, 1) 0%,
+        rgba(253, 29, 29, 1) 50%,
+        rgba(252, 176, 69, 1) 100%
+    );
+    border-image-slice: 1;
+}
+/* Scroll Bar */
+body::-webkit-scrollbar-track {
+    background-color: #f5f5f5;
+}
+
+body::-webkit-scrollbar {
+    width: 10px;
+    background-color: #f5f5f5;
+}
+
+body::-webkit-scrollbar-thumb {
+    background-color: #0ae;
+
+    background-image: -webkit-gradient(
+        linear,
+        0 0,
+        0 100%,
+        color-stop(0.5, rgba(255, 255, 255, 0.2)),
+        color-stop(0.5, transparent),
+        to(transparent)
+    );
+}
+/* Home Page */
+header {
+    width: 100%;
+    height: 100vh;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+        url("https://upload.wikimedia.org/wikipedia/commons/b/b9/Typing_computer_screen_reflection.jpg");
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+}
+.welcomeContainer {
+    position: absolute;
+    width: 80vw;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+.welcomeTitle {
+    text-decoration: none;
+    border: none;
+    outline: none;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 5em;
+}
+.welcomeSubtitle {
+    color: white;
+    font-size: 2em;
+}
+.about {
+    height: 1200px;
+}
+/* Navigation */
+.navbar {
+    background: rgb(5, 0, 27);
+    font-size: 120%;
+}
+.navbar a {
+    color: rgb(161, 161, 161);
+    text-decoration: none;
+    transition: all 0.3s;
+}
+.navbar a:hover {
+    color: white;
+}
+.brand a {
+    font-size: 150%;
+}
+.brand {
+    padding: 10px 0;
+}
+.brand,
+.links {
+    display: inline-block;
+}
+.links {
+    padding: 10px;
+}
+.links ul {
+    list-style-image: none;
+    list-style-type: none;
+    margin: 0 0 0 30px;
+    padding: 0;
+}
+.links li {
+    padding: 0 20px;
+    display: inline-block;
+}
+/* Join Room */
+.roomForm {
+    width: 50%;
+    margin: 0 auto;
+}
+
+.roomForm input:not([type="submit"]) {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    box-shadow: 7px 10px 23px 2px rgba(171, 171, 171, 1);
+}
+.roomForm .form-group {
+    margin: 2em 0;
+}
+.roomForm label {
+    font-size: 1.3em;
+}
+.roomForm input[type="submit"] {
+    margin-top: 3em;
+    width: 100%;
+    padding: 10px;
+    border: 3px solid #000;
+    border-image: linear-gradient(
+        90deg,
+        rgba(131, 58, 180, 1) 0%,
+        rgba(253, 29, 29, 1) 50%,
+        rgba(252, 176, 69, 1) 100%
+    );
+    border-image-slice: 1;
+    background: transparent;
+    font-weight: bold;
+    letter-spacing: 1px;
+    word-spacing: 2px;
+    transition: all 0.3s;
+}
+.roomForm input[type="submit"]:hover {
+    background: rgb(248, 248, 248);
+}
+#joinRoomError {
+    width: 50%;
+    margin: 20px auto;
+    display: none;
+}
+#joinRoomError p {
+    padding: 10px;
+    margin: 0;
+}
+/* Wiki Page */
+.wikiArticle {
+    padding: 20px;
+}

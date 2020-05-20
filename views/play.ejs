@@ -1,0 +1,116 @@
+<%- include('partials/header') %>
+
+<style>
+    iframe {
+        width: 99%;
+        height: 89vh;
+        border: none;
+        box-shadow: 5px 5px 20px 10px rgb(170, 170, 170);
+        margin: 10px auto 0 auto;
+    }
+
+    .iframeContainer {
+        margin: 0;
+    }
+
+    .roomInfo {
+        padding: 5px 5px 5px 20px;
+    }
+
+    .roomInfo h3 {
+        margin: 10px 0;
+    }
+
+    .roomInfo p {
+        text-align: center;
+    }
+
+    .roomInfo p:nth-of-type(2n+1) {
+        font-size: 110%;
+        font-weight: bold;
+    }
+
+    .found {
+        color: green;
+        font-weight: bold;
+    }
+
+    .row {
+        margin-right: 0;
+    }
+</style>
+<div class="row">
+    <div class="col-2 roomInfo">
+        <h1>WikiRaces</h1>
+        <h3>Room Info</h3>
+        <p class="sideTitle">Room ID</p>
+        <p><%- roomId %></p>
+        <p class="sideTitle">Starting Page</p>
+        <p><%- startPage %></p>
+        <p class="sideTitle">End Page</p>
+        <p><%- endPage %></p>
+        <h3>Player Info</h3>
+        <ul id="usersList">
+
+        </ul>
+    </div>
+    <div class="iframeContainer col-10">
+        <iframe id="gameFrame" onLoad="iframeChanged()"></iframe>
+    </div>
+</div>
+<script>
+    const socket = io('http://' + document.domain + ':' + location.port);
+    $(document).ready(() => {
+        // Add disconnect function to body
+        $('body').attr('onunload', "disconnectEvent();");
+        const startPage = encodeURIComponent('<%- startPage %>')
+        $('#gameFrame').attr('src', `/room/<%- roomId %>/wiki/${startPage}`);
+        socket.on('update', (data) => {
+            const users = data.users;
+            let html = ``;
+            const keys = Object.keys(users);
+            for (let i = 0; i < keys.length; i++) {
+                user = users[keys[i]];
+                html += `<li class=${user.found === true ? "found" : ""}>${user.name} - ${user.currentUrl.charAt(0).toUpperCase() + user.currentUrl.slice(1)}</li>`
+            }
+            $('#usersList').html(html);
+        })
+    })
+    // URL Update Function (when iframe changes)
+    const iframe = document.getElementById('gameFrame');
+    iframeChanged = () => {
+        // Runs every time iframe link is changed
+        $('#gameFrame').on('load', () => {
+            const url = iframe.contentWindow.location.href;
+            const home = window.location.protocol + "//" + window.location.host + "/"
+            console.log(home);
+            if (url == home) {
+                window.location.href = "/";
+            }
+            const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+            const title = innerDoc.getElementById('wikiPageTitle').innerHTML;
+            // Emit URL update socket event
+            socket.emit('urlUpdate', {
+                roomId: "<%- roomId  %>",
+                userId: "<%- userId %>",
+                currentUrl: title
+            })
+            if (title === "<%- endPage %>") {
+                socket.emit('foundPage', {
+                    roomId: "<%- roomId %>",
+                    userId: "<%- userId %>"
+                })
+            }
+        })
+    }
+    disconnectEvent = () => {
+        socket.emit('leaveRoom', {
+            roomId: "<%- roomId %>",
+            userId: "<%- userId %>"
+        })
+        window.location.href = window.location.protocol + "//" + window.location.host + "/";
+    }
+
+</script>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,24 @@
+{
+    "name": "wikipedia-races",
+    "version": "1.0.0",
+    "description": "Node Socket-IO application for playing Wikipedia Races with friends",
+    "main": "server.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "nodemon server.js"
+    },
+    "author": "Luca Passariello",
+    "license": "ISC",
+    "devDependencies": {
+        "nodemon": "^2.0.3"
+    },
+    "dependencies": {
+        "axios": "^0.19.2",
+        "body-parser": "^1.19.0",
+        "ejs": "^3.1.2",
+        "express": "^4.17.1",
+        "express-session": "^1.17.1",
+        "http": "0.0.1-security",
+        "socket.io": "^2.3.0"
+    }
+}
