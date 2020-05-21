@@ -1,9 +1,11 @@
 const express = require("express");
 const app = express();
-const http = require("http").Server(app);
-const io = require("./sockets.js").init(http);
+const socketio = require("socket.io");
+const io = socketio();
+app.io = io;
 const session = require("express-session");
 const bodyParser = require("body-parser");
+const connectDB = require("./config/db.js");
 const util = require("./util.js");
 const ROOMS = require("./rooms.js");
 const ee = require(`./eventEmiter`);
@@ -32,48 +34,46 @@ app.set("views", __dirname + "/views");
 // Specify static content route
 app.use("/static", express.static("static"));
 
+// Connect to Database
+connectDB();
+
 // Internal Event Emitters
 const events = require("./eventsBus");
 
 // SocketIO Sockets
 io.on("connection", (socket) => {
+    socket.on("error", function (reason) {
+        console.error("Unable to connect Socket.IO", reason);
+    });
+
     console.log(`Socket ${socket.id} connected`);
     socket.on("disconnect", () => {
         socket.removeAllListeners();
         console.log(`Socket ${socket.id} disconnected`);
     });
-    socket.on("createRoom", async (data) => {
-        // Get ID of Selected Pages
-        const startPage = await util.getPagesWithRedirects(data.startPage);
-        const endPage = await util.getPagesWithRedirects(data.endPage);
-        ROOMS[data.roomId] = {
-            users: {},
-            startPage: startPage,
-            endPage: endPage,
-        };
+    socket.on("leaveRoom", async (data) => {
+        await util.leaveRoom(data.roomId, data.userId);
+        const room = await Room.findOne({ roomId: data.roomId });
+        socket.emit("update", JSON.stringify(room));
+        socket.broadcast.emit("update", JSON.stringify(room));
     });
-    socket.on("leaveRoom", (data) => {
-        ee.emit("leaveRoom", { roomId: data.roomId, userId: data.userId });
-        socket.emit("update", ROOMS[data.roomId]);
-        socket.broadcast.emit("update", ROOMS[data.roomId]);
-    });
-    socket.on("urlUpdate", (data) => {
+    socket.on("urlUpdate", async (data) => {
+        console.log(data.userId);
         try {
-            if (ROOMS[data.roomId].users[data.userId]) {
-                ROOMS[data.roomId].users[data.userId].currentUrl =
-                    data.currentUrl;
-                socket.broadcast.emit("update", ROOMS[data.roomId]);
-                socket.emit("update", ROOMS[data.roomId]);
-            }
+            await util.updateUrl(data.roomId, data.userId, data.currentUrl);
+            const room = await Room.findOne({ roomId: data.roomId });
+            socket.emit("update", JSON.stringify(room));
+            socket.broadcast.emit("update", JSON.stringify(room));
         } catch (error) {
             console.error(error);
         }
     });
-    socket.on("foundPage", (data) => {
+    socket.on("foundPage", async (data) => {
         try {
-            ROOMS[data.roomId].users[data.userId].found = true;
-            socket.emit("update", ROOMS[data.roomId]);
-            socket.broadcast.emit("update", ROOMS[data.roomId]);
+            util.foundPage(data.roomId, data.userId);
+            const room = await Room.findOne({ roomId: data.roomId });
+            socket.emit("update", JSON.stringify(room));
+            socket.broadcast.emit("update", JSON.stringify(room));
         } catch (error) {
             console.error(error);
         }
@@ -84,24 +84,24 @@ io.on("connection", (socket) => {
 app.use("/", require("./routes/main"));
 app.use("/room", require("./routes/room"));
 
-function wwwRedirect(req, res, next) {
-    if (req.headers.host.slice(0, 4) === "www.") {
-        var newHost = req.headers.host.slice(4);
-        return res.redirect(
-            301,
-            req.protocol + "://" + newHost + req.originalUrl
-        );
-    }
-    next();
-}
+// function wwwRedirect(req, res, next) {
+//     if (req.headers.host.slice(0, 4) === "www.") {
+//         var newHost = req.headers.host.slice(4);
+//         return res.redirect(
+//             301,
+//             req.protocol + "://" + newHost + req.originalUrl
+//         );
+//     }
+//     next();
+// }
 
 app.set("trust proxy", true);
-app.use(wwwRedirect);
+// app.use(wwwRedirect);
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
-    next(createError(404));
-});
+// app.use(function (req, res, next) {
+//     next(createError(404));
+// });
 
 // error handler
 app.use(function (err, req, res, next) {

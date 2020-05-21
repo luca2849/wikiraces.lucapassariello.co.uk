@@ -1,3 +1,2 @@
 Notes For Wikiraces System
-- Revamp system to use the iframe instead, performing all logic in one page
-- On new wiki page socket disconnect remove player from game object, so in client JS, socket.on(disconnect, () => socket.emit('leaveRoom', {roomId, playerId})), then clear session on server
+- Everything to do with ROOMS needs to be converted over to MongoDB instance, either through Atlas or RED

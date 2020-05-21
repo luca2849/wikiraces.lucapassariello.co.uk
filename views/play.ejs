@@ -55,7 +55,7 @@
         </ul>
     </div>
     <div class="iframeContainer col-10">
-        <iframe id="gameFrame" onLoad="iframeChanged()"></iframe>
+        <iframe id="gameFrame"></iframe>
     </div>
 </div>
 <script>
@@ -63,15 +63,18 @@
     $(document).ready(() => {
         // Add disconnect function to body
         $('body').attr('onunload', "disconnectEvent();");
+        $('#gameFrame').attr('onLoad', 'iframeChanged()');
         const startPage = encodeURIComponent('<%- startPage %>')
         $('#gameFrame').attr('src', `/room/<%- roomId %>/wiki/${startPage}`);
+        iframeChanged();
         socket.on('update', (data) => {
-            const users = data.users;
+            console.log("Update Now")
+            const cleanData = JSON.parse(data);
+            const users = cleanData.users;
             let html = ``;
-            const keys = Object.keys(users);
-            for (let i = 0; i < keys.length; i++) {
-                user = users[keys[i]];
-                html += `<li class=${user.found === true ? "found" : ""}>${user.name} - ${user.currentUrl.charAt(0).toUpperCase() + user.currentUrl.slice(1)}</li>`
+            for (let i = 0; i < users.length; i++) {
+                user = users[i];
+                html += `<li class=${user.found === true ? "found" : ""}>${user.username} - ${user.currentUrl.charAt(0).toUpperCase() + user.currentUrl.slice(1)}</li>`
             }
             $('#usersList').html(html);
         })
@@ -81,12 +84,6 @@
     iframeChanged = () => {
         // Runs every time iframe link is changed
         $('#gameFrame').on('load', () => {
-            const url = iframe.contentWindow.location.href;
-            const home = window.location.protocol + "//" + window.location.host + "/"
-            console.log(home);
-            if (url == home) {
-                window.location.href = "/";
-            }
             const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
             const title = innerDoc.getElementById('wikiPageTitle').innerHTML;
             // Emit URL update socket event

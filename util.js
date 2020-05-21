@@ -1,5 +1,6 @@
 const axios = require(`axios`);
 const fs = require("fs");
+const Room = require("./models/Room");
 
 // Function for creating IDs
 createId = (length) => {
@@ -58,9 +59,113 @@ log = (msg) => {
     });
 };
 
+joinRoom = (roomId, userId, username) => {
+    // const room = Rooms.findAndModify({ query: { id: roomId }, update:  });
+    Room.findOne({ roomId: roomId }, (err, foundObject) => {
+        if (err) {
+            console.error(err);
+        } else {
+            if (!foundObject) {
+                console.log("Room not found");
+            } else {
+                foundObject.users.push({
+                    userId: userId,
+                    currentUrl: "",
+                    username: username,
+                });
+                foundObject.save();
+            }
+        }
+    });
+};
+
+leaveRoom = async (roomId, userId) => {
+    await Room.findOne({ roomId: roomId }, async (err, foundObject) => {
+        if (err) {
+            console.error(err);
+        } else {
+            if (!foundObject) {
+                console.log("Room not found");
+            } else {
+                let foundIdx;
+                for (let i = 0; i < foundObject.users.length; i++) {
+                    if (foundObject.users[i].userId === userId) {
+                        foundIdx = i;
+                        break;
+                    }
+                }
+                if (foundIdx || foundIdx === 0) {
+                    foundObject.users.splice(foundIdx, 1);
+                    if (foundObject.users.length === 0) {
+                        await deleteRoom(roomId);
+                    } else {
+                        await foundObject.save();
+                    }
+                }
+            }
+        }
+    });
+};
+
+deleteRoom = async (roomId) => {
+    await Room.deleteOne({ roomId });
+};
+
+updateUrl = async (roomId, userId, url) => {
+    await Room.findOne({ roomId }, async (err, foundObject) => {
+        if (err) {
+            console.error(err);
+        } else {
+            if (!foundObject) {
+                console.log("Room Not Found");
+            } else {
+                let foundIdx;
+                for (let i = 0; i < foundObject.users.length; i++) {
+                    if (foundObject.users[i].userId === userId) {
+                        foundIdx = i;
+                        break;
+                    }
+                }
+                if (foundIdx || foundIdx === 0) {
+                    foundObject.users[foundIdx].currentUrl = url;
+                    await foundObject.save();
+                }
+            }
+        }
+    });
+};
+
+foundPage = (roomId, userId) => {
+    Room.findOne({ roomId }, (err, foundObject) => {
+        if (err) {
+            console.error(err);
+        } else {
+            if (!foundObject) {
+                console.log("Room Not Found");
+            } else {
+                let foundIdx;
+                for (let i = 0; i < foundObject.users.length; i++) {
+                    if (foundObject.users[i].userId === userId) {
+                        foundIdx = i;
+                        break;
+                    }
+                }
+                if (foundIdx || foundIdx === 0) {
+                    foundObject.users[foundIdx].found = true;
+                    foundObject.save();
+                }
+            }
+        }
+    });
+};
+
 module.exports = {
     createId,
     toSentenceCase,
     getPagesWithRedirects,
     log,
+    joinRoom,
+    leaveRoom,
+    updateUrl,
+    foundPage,
 };

@@ -3,9 +3,10 @@ const router = express.Router();
 const axios = require(`axios`);
 const util = require("../util.js");
 const ROOMS = require("../rooms.js");
-const io = require(`../sockets.js`).getio();
 const ee = require(`../eventEmiter`);
 const roomCheck = require("../middleware/roomCheck");
+const sessionIdCheck = require("../middleware/sessionIdCheck");
+const Room = require("../models/Room");
 
 router.get("/join", (req, res) => {
     util.log(JSON.stringify(ROOMS));
@@ -15,38 +16,46 @@ router.get("/join", (req, res) => {
     }
     res.render("joinRoom.ejs", { userId: req.session.userId });
 });
-router.post("/join", (req, res) => {
+router.post("/join", sessionIdCheck, async (req, res) => {
     const roomId = req.body.roomId;
-    const username = req.body.username;
-    if (!(roomId in ROOMS)) {
-        res.redirect(`/room/join?error=${roomId}`);
-    } else {
-        ee.emit("joinRoom", {
-            userId: req.session.userId,
-            roomId,
-            username,
-        });
-        res.redirect(`/room/${roomId}/play`);
-    }
+    Room.findOne({ roomId: roomId }, async (err, foundObject) => {
+        if (err) {
+            console.error(err);
+            res.redirect(`/room/join?error=${roomId}`);
+        } else {
+            if (!foundObject) {
+                console.log("Room not found");
+                res.redirect(`/room/join?error=${roomId}`);
+            } else {
+                await util.joinRoom(
+                    req.body.roomId,
+                    req.session.userId,
+                    req.body.username
+                );
+                res.redirect(`/room/${roomId}/play`);
+            }
+        }
+    });
 });
 
-router.get("/create", (req, res) => {
+router.get("/create", sessionIdCheck, (req, res) => {
     res.render("createRoom.ejs");
 });
 
-router.post("/create", (req, res) => {
-    if (!req.session.userId) {
-        const userId = util.createId(10);
-        req.session.userId = userId;
-    }
+router.post("/create", sessionIdCheck, async (req, res) => {
+    const startPage = await util.getPagesWithRedirects(req.body.startPage);
+    const endPage = await util.getPagesWithRedirects(req.body.endPage);
+    room = new Room({
+        roomId: req.body.roomId,
+        startPage: startPage,
+        endPage: endPage,
+    });
+    await room.save();
     res.redirect(`/room/join?id=${req.body.roomId}`);
 });
 
 router.get("/:id/wiki/:term", async (req, res) => {
     try {
-        if (!(req.session.userId in ROOMS[req.params.id].users)) {
-            return res.redirect("/");
-        }
         const uri = `http://en.wikipedia.org/w/api.php?action=parse&page=${req.params.term}&format=json&prop=text|headhtml&contentmodel=wikitext`;
         const resp = await axios.get(encodeURI(uri));
         let body = resp.data.parse.text["*"];
@@ -72,14 +81,15 @@ router.get("/:id/wiki/:term/:term2", (req, res) => {
     );
 });
 
-router.get("/:id/play", roomCheck, (req, res) => {
+router.get("/:id/play", async (req, res) => {
     const roomId = req.params.id;
     const userId = req.session.userId;
+    const room = await Room.findOne({ roomId });
     return res.render(`play.ejs`, {
         userId: userId,
         roomId: roomId,
-        startPage: util.toSentenceCase(ROOMS[roomId].startPage),
-        endPage: util.toSentenceCase(ROOMS[roomId].endPage),
+        startPage: util.toSentenceCase(room.startPage),
+        endPage: util.toSentenceCase(room.endPage),
     });
 });
 
