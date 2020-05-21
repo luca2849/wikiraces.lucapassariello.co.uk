@@ -84,7 +84,7 @@ router.get("/:id/wiki/:term/:term2", (req, res) => {
     );
 });
 
-router.get("/:id/play", roomCheck, async (req, res) => {
+router.get("/:id/play", [roomCheck, sessionIdCheck], async (req, res) => {
     const roomId = req.params.id;
     const userId = req.session.userId;
     const room = await Room.findOne({ roomId });

@@ -11,8 +11,6 @@ module.exports = async (req, res, next) => {
                 console.log("Room not found");
                 return res.redirect("/room/join");
             }
-            console.log(room.users);
-            console.log(req.session.userId);
             for (let i = 0; i < room.users.length; i++) {
                 if (room.users[i].userId === req.session.userId) {
                     return next();
