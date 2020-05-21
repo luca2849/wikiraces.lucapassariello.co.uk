@@ -59,9 +59,9 @@ log = (msg) => {
     });
 };
 
-joinRoom = (roomId, userId, username) => {
+joinRoom = async (roomId, userId, username) => {
     // const room = Rooms.findAndModify({ query: { id: roomId }, update:  });
-    Room.findOne({ roomId: roomId }, (err, foundObject) => {
+    await Room.findOne({ roomId: roomId }, (err, foundObject) => {
         if (err) {
             console.error(err);
         } else {

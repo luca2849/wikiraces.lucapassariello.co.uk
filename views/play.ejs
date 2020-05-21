@@ -42,8 +42,8 @@
 <div class="row">
     <div class="col-2 roomInfo">
         <h1>WikiRaces</h1>
-        <h3>Room Info</h3>
-        <p class="sideTitle">Room ID</p>
+        <h3>Game Info</h3>
+        <p class="sideTitle">Game ID</p>
         <p><%- roomId %></p>
         <p class="sideTitle">Starting Page</p>
         <p><%- startPage %></p>
@@ -100,6 +100,9 @@
             }
         })
     }
+    $(window).unload(function () {
+        disconnectEvent();
+    });
     disconnectEvent = () => {
         socket.emit('leaveRoom', {
             roomId: "<%- roomId %>",
