@@ -71,7 +71,7 @@ log = (msg) => {
 
 joinRoom = async (roomId, userId, username) => {
     // const room = Rooms.findAndModify({ query: { id: roomId }, update:  });
-    await Room.findOne({ roomId: roomId }, (err, foundObject) => {
+    await Room.findOne({ roomId: roomId.toUpperCase() }, (err, foundObject) => {
         if (err) {
             console.error(err);
         } else {

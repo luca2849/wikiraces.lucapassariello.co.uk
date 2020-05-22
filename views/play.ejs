@@ -35,12 +35,17 @@
         socket.on('update', (data) => {
             const cleanData = JSON.parse(data);
             const users = cleanData.users;
-            let html = ``;
+            let html = [];
             for (let i = 0; i < users.length; i++) {
                 user = users[i];
-                html += `<li class=${user.found ? "found" : ""}>${user.username} - ${user.currentUrl.charAt(0).toUpperCase() + user.currentUrl.slice(1)}</li>`
+                if (users[i].userId === "<%- userId %>") {
+                    html.push(html[0]);
+                    html[0] = (`<li class=${user.found ? "found" : ""}>${user.username} - ${user.currentUrl.charAt(0).toUpperCase() + user.currentUrl.slice(1)}</li>`)
+                } else {
+                    html.push(`<li class=${user.found ? "found" : ""}>${user.username} - ${user.currentUrl.charAt(0).toUpperCase() + user.currentUrl.slice(1)}</li>`)
+                }
             }
-            $('#usersList').html(html);
+            $('#usersList').html(html.join(""));
         })
     })
     // URL Update Function (when iframe changes)
@@ -49,7 +54,13 @@
         // Runs every time iframe link is changed
         $('#gameFrame').on('load', () => {
             const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
-            const title = innerDoc.getElementById('wikiPageTitle').innerHTML;
+            let title;
+            if (innerDoc.getElementById('wikiPageTitle')) {
+                title = innerDoc.getElementById('wikiPageTitle').innerHTML;
+            } else {
+                title = "None";
+            }
+
             // Emit URL update socket event
             socket.emit('urlUpdate', {
                 roomId: "<%- roomId  %>",

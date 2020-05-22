@@ -18,29 +18,35 @@ router.get("/join", (req, res) => {
     res.render("joinRoom.ejs", { userId: req.session.userId });
 });
 router.post("/join", async (req, res) => {
-    const roomId = req.body.roomId;
-    req.session.userId = util.createId(5);
-    if (!roomId || !req.body.username) {
+    if (req.body.roomId === "" || req.body.username === "") {
+        console.log("Validation Error");
         return res.redirect("/room/join");
     }
-    Room.findOne({ roomId: roomId }, async (err, foundObject) => {
-        if (err) {
-            console.error(err);
-            res.redirect(`/room/join?error=${roomId}`);
-        } else {
-            if (!foundObject) {
-                console.log("Room not found");
-                res.redirect(`/room/join?error=${roomId}`);
+    if (req.body.roomId.length !== 5) {
+        console.log("Validation Length Error");
+        return res.redirect("/room/join");
+    }
+    await Room.findOne(
+        { roomId: req.body.roomId.toUpperCase() },
+        async (err, foundObject) => {
+            if (err) {
+                console.error(err);
+                return res.redirect(`/room/join?error=${req.body.roomId}`);
             } else {
-                await util.joinRoom(
-                    req.body.roomId,
-                    req.session.userId,
-                    req.body.username
-                );
-                res.redirect(`/room/${roomId}/play`);
+                if (!foundObject) {
+                    console.log("Room not found");
+                    return res.redirect(`/room/join?error=${req.body.roomId}`);
+                } else {
+                    await util.joinRoom(
+                        req.body.roomId,
+                        req.session.userId,
+                        req.body.username
+                    );
+                    return res.redirect(`/room/${req.body.roomId}/play`);
+                }
             }
         }
-    });
+    );
 });
 
 router.get("/create", sessionIdCheck, (req, res) => {
