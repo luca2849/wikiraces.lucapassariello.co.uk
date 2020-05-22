@@ -17,8 +17,9 @@ router.get("/join", (req, res) => {
     }
     res.render("joinRoom.ejs", { userId: req.session.userId });
 });
-router.post("/join", sessionIdCheck, async (req, res) => {
+router.post("/join", async (req, res) => {
     const roomId = req.body.roomId;
+    req.session.userId = util.createId(5);
     if (!roomId || !req.body.username) {
         return res.redirect("/room/join");
     }
