@@ -21,8 +21,7 @@
 </div>
 <script>
     const protocol = window.location.protocol;
-    console.log(protocol)
-    const socket = io(protocol + '//' + document.domain + ':' + location.port);
+    const socket = io('/', {secure: true});
     $(document).ready(() => {
         // Add disconnect function to body
         $('body').attr('onunload', "disconnectEvent();");
