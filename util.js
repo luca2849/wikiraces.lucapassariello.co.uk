@@ -79,10 +79,12 @@ joinRoom = async (roomId, userId, username) => {
                 if (!foundObject) {
                     console.log("Room not found");
                 } else {
+                    const host = foundObject.users.length === 0;
                     foundObject.users.push({
                         userId: userId,
                         currentUrl: "",
                         username: username,
+                        host: host,
                     });
                     await foundObject.save();
                 }
@@ -170,6 +172,20 @@ foundPage = (roomId, userId) => {
     });
 };
 
+findInRoom = async (userId, roomId) => {
+    const room = await Room.findOne({ roomId });
+    if (!room) {
+        console.log("Room not found");
+        return undefined;
+    }
+    for (let i = 0; i < room.users.length; i++) {
+        if (room.users[i].userId === userId) {
+            return room.users[i];
+        }
+    }
+    return undefined;
+};
+
 module.exports = {
     createId,
     toSentenceCase,
@@ -180,4 +196,5 @@ module.exports = {
     updateUrl,
     foundPage,
     doesPageExist,
+    findInRoom,
 };

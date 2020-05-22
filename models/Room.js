@@ -30,6 +30,10 @@ const RoomSchema = new mongoose.Schema({
                 type: String,
                 required: true,
             },
+            host: {
+                type: Boolean,
+                required: true,
+            },
         },
     ],
 });

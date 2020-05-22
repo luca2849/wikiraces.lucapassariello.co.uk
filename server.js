@@ -79,6 +79,9 @@ io.on("connection", (socket) => {
             console.error(error);
         }
     });
+    socket.on("startGame", async (data) => {
+        io.in(data.roomId).emit("gameStarted");
+    });
 });
 
 // Define Routes

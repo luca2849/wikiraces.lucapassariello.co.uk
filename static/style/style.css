@@ -181,6 +181,7 @@ iframe {
 }
 
 .iframeContainer {
+    display: none;
     margin: 0;
 }
 
@@ -208,4 +209,27 @@ iframe {
 
 .row {
     margin-right: 0;
+}
+#startButton {
+    width: 100%;
+    padding: 10px;
+    background: rgb(19, 165, 0);
+    color: white;
+    border: 4px solid transparent;
+    font-weight: bold;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+}
+#startButton:hover {
+    background: white;
+    color: black;
+    border: 4px solid rgb(19, 165, 0);
+}
+.gameContainer {
+    width: 100%;
+    height: 100%;
+    padding: 5px;
+}
+.jumbotron {
+    height: 80vh;
 }

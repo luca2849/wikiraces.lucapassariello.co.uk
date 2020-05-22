@@ -46,9 +46,7 @@ router.post("/join", async (req, res) => {
             }
         }
     );
-    await req.app.socket.join(req.body.roomId);
-    // Sleep for 1 Second
-    await new Promise((r) => setTimeout(r, 1000));
+    await new Promise((r) => setTimeout(r, 500));
     return res.redirect(`/room/${req.body.roomId}/play`);
 });
 
@@ -112,6 +110,11 @@ router.get("/:id/play", [sessionIdCheck, roomCheck], async (req, res) => {
     if (!room) {
         return res.redirect(`/room/join`);
     }
+    await req.app.socket.join(roomId);
+    let currentUser = await util.findInRoom(userId, roomId);
+    if (currentUser === undefined) {
+        currentUser = { host: false };
+    }
     req.app.socket.to(roomId).emit("update", JSON.stringify(room));
     req.app.socket.emit("update", JSON.stringify(room));
     return res.render(`play.ejs`, {
@@ -119,6 +122,7 @@ router.get("/:id/play", [sessionIdCheck, roomCheck], async (req, res) => {
         roomId: roomId,
         startPage: util.toSentenceCase(room.startPage),
         endPage: util.toSentenceCase(room.endPage),
+        host: currentUser.host,
     });
 });
 

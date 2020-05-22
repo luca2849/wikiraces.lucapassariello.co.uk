@@ -11,6 +11,10 @@
         <p><%- startPage %></p>
         <p class="sideTitle">End Page</p>
         <p><%- endPage %></p>
+        <% if (host === true) { %>
+        <p class="sideTitle">Start Game</p>
+        <button id="startButton" onClick="startGame()">Start</button>
+        <% } %>
         <div class="titleContainer">
             <h3 class="title">Player Info</h3>
         </div>
@@ -18,9 +22,20 @@
 
         </ul>
     </div>
-    <div class="iframeContainer col-10">
-        <iframe id="gameFrame"></iframe>
+    <div class="gameContainer col-10">
+        <div class="iframeContainer">
+            <iframe id="gameFrame"></iframe>
+        </div>
+        <div class="startPage">
+            <div class="jumbotron jumbotron-fluid">
+                <div class="container">
+                    <h1 class="display-4">Starting Soon</h1>
+                    <p class="lead">The host will need to press the 'start' button.</p>
+                </div>
+            </div>
+        </div>
     </div>
+
 </div>
 <script>
     const socket = io('/', { secure: true });
@@ -46,6 +61,11 @@
                 }
             }
             $('#usersList').html(html.join(""));
+        })
+        socket.on('gameStarted', () => {
+            console.log("Game Started");
+            $('.startPage').remove();
+            $('.iframeContainer').css('display', 'block');
         })
     })
     // URL Update Function (when iframe changes)
@@ -74,6 +94,9 @@
                 })
             }
         })
+    }
+    startGame = () => {
+        socket.emit('startGame', { roomId: "<%- roomId %>" });
     }
     $(window).on('unload', function () {
         disconnectEvent();
