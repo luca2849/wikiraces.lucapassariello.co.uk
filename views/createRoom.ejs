@@ -21,11 +21,18 @@
         <div class="form-group">
             <input type="submit" value="Create Game" />
         </div>
-
+        <div id="createRoomError" class="alert alert-danger">
+        </div>
     </form>
 </div>
 <script>
     $(document).ready(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        if (error == 1) {
+            $('#createRoomError').css('display', 'block');
+            $('#createRoomError').text("One or more pages you entered did not exist");
+        }
         let result = "";
         const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         for (let i = 0; i < 5; i++) {

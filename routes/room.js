@@ -57,15 +57,22 @@ router.post("/create", sessionIdCheck, async (req, res) => {
     if (!req.body.endPage && !req.body.startPage && !req.body.roomId) {
         return res.redirect(`/room/create`);
     }
-    const startPage = await util.getPagesWithRedirects(req.body.startPage);
-    const endPage = await util.getPagesWithRedirects(req.body.endPage);
-    room = new Room({
-        roomId: req.body.roomId,
-        startPage: startPage,
-        endPage: endPage,
-    });
-    await room.save();
-    res.redirect(`/room/join?id=${req.body.roomId}`);
+    if (
+        (await util.doesPageExist(req.body.startPage)) &&
+        (await util.doesPageExist(req.body.endPage))
+    ) {
+        const startPage = await util.getPagesWithRedirects(req.body.startPage);
+        const endPage = await util.getPagesWithRedirects(req.body.endPage);
+        room = new Room({
+            roomId: req.body.roomId.toUpperCase(),
+            startPage: startPage,
+            endPage: endPage,
+        });
+        await room.save();
+        res.redirect(`/room/join?id=${req.body.roomId}`);
+    } else {
+        res.redirect(`/room/create?error=1`);
+    }
 });
 
 router.get("/:id/wiki/:term", async (req, res) => {
@@ -108,11 +115,6 @@ router.get("/:id/play", [roomCheck, sessionIdCheck], async (req, res) => {
         startPage: util.toSentenceCase(room.startPage),
         endPage: util.toSentenceCase(room.endPage),
     });
-});
-
-router.get("/test", async (req, res) => {
-    console.log(await util.doesPageExist("Alien (film)"));
-    res.send("TEST PAGE");
 });
 
 module.exports = router;

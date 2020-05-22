@@ -120,7 +120,6 @@ header {
     width: 50%;
     margin: 0 auto;
 }
-
 .roomForm input:not([type="submit"]) {
     display: block;
     width: 100%;
@@ -164,6 +163,9 @@ header {
 #joinRoomError p {
     padding: 10px;
     margin: 0;
+}
+#createRoomError {
+    display: none;
 }
 /* Wiki Page */
 .wikiArticle {

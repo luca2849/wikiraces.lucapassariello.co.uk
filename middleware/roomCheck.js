@@ -15,7 +15,6 @@ module.exports = async (req, res, next) => {
                 }
                 for (let i = 0; i < room.users.length; i++) {
                     if (room.users[i].userId === req.session.userId) {
-                        console.log("Found");
                         return next();
                     }
                 }
