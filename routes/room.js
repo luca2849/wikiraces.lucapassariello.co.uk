@@ -42,11 +42,14 @@ router.post("/join", async (req, res) => {
                         req.session.userId,
                         req.body.username
                     );
-                    return res.redirect(`/room/${req.body.roomId}/play`);
                 }
             }
         }
     );
+    await req.app.socket.join(req.body.roomId);
+    // Sleep for 1 Second
+    await new Promise((r) => setTimeout(r, 1000));
+    return res.redirect(`/room/${req.body.roomId}/play`);
 });
 
 router.get("/create", sessionIdCheck, (req, res) => {
@@ -102,13 +105,15 @@ router.get("/:id/wiki/:term/:term2", (req, res) => {
     );
 });
 
-router.get("/:id/play", [roomCheck, sessionIdCheck], async (req, res) => {
+router.get("/:id/play", [sessionIdCheck, roomCheck], async (req, res) => {
     const roomId = req.params.id;
     const userId = req.session.userId;
     const room = await Room.findOne({ roomId });
     if (!room) {
         return res.redirect(`/room/join`);
     }
+    req.app.socket.to(roomId).emit("update", JSON.stringify(room));
+    req.app.socket.emit("update", JSON.stringify(room));
     return res.render(`play.ejs`, {
         userId: userId,
         roomId: roomId,

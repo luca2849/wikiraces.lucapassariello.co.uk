@@ -7,8 +7,6 @@ const session = require("express-session");
 const bodyParser = require("body-parser");
 const connectDB = require("./config/db.js");
 const util = require("./util.js");
-const ROOMS = require("./rooms.js");
-const ee = require(`./eventEmiter`);
 
 // Init Session
 app.use(
@@ -39,29 +37,31 @@ connectDB();
 
 // SocketIO Sockets
 io.on("connection", (socket) => {
+    app.socket = socket;
     socket.on("error", function (reason) {
         console.error("Unable to connect Socket.IO", reason);
     });
-    console.log(`Socket ${socket.id} connected`);
+    //console.log(`Socket ${socket.id} connected`);
     socket.on("disconnect", () => {
         socket.removeAllListeners();
-        console.log(`Socket ${socket.id} disconnected`);
+        //console.log(`Socket ${socket.id} disconnected`);
     });
     socket.on("leaveRoom", async (data) => {
         await util.leaveRoom(data.roomId, data.userId);
+        await new Promise((r) => setTimeout(r, 500));
         const room = await Room.findOne({ roomId: data.roomId });
         if (room) {
-            socket.emit("update", JSON.stringify(room));
-            socket.broadcast.emit("update", JSON.stringify(room));
+            socket.to(data.roomId).emit("update", JSON.stringify(room));
         }
+        socket.leave(data.roomId);
     });
     socket.on("urlUpdate", async (data) => {
         try {
             await util.updateUrl(data.roomId, data.userId, data.currentUrl);
             const room = await Room.findOne({ roomId: data.roomId });
             if (room) {
+                socket.to(data.roomId).emit("update", JSON.stringify(room));
                 socket.emit("update", JSON.stringify(room));
-                socket.broadcast.emit("update", JSON.stringify(room));
             }
         } catch (error) {
             console.error(error);
@@ -72,8 +72,8 @@ io.on("connection", (socket) => {
             util.foundPage(data.roomId, data.userId);
             const room = await Room.findOne({ roomId: data.roomId });
             if (room) {
+                socket.to(data.roomId).emit("update", JSON.stringify(room));
                 socket.emit("update", JSON.stringify(room));
-                socket.broadcast.emit("update", JSON.stringify(room));
             }
         } catch (error) {
             console.error(error);

@@ -23,7 +23,6 @@
     </div>
 </div>
 <script>
-    const protocol = window.location.protocol;
     const socket = io('/', { secure: true });
     $(document).ready(() => {
         // Add disconnect function to body
@@ -33,6 +32,7 @@
         $('#gameFrame').attr('src', `/room/<%- roomId %>/wiki/${startPage}`);
         iframeChanged();
         socket.on('update', (data) => {
+            console.log(JSON.parse(data));
             const cleanData = JSON.parse(data);
             const users = cleanData.users;
             let html = [];

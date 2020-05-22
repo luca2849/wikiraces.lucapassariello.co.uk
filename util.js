@@ -70,51 +70,56 @@ log = (msg) => {
 };
 
 joinRoom = async (roomId, userId, username) => {
-    // const room = Rooms.findAndModify({ query: { id: roomId }, update:  });
-    await Room.findOne({ roomId: roomId.toUpperCase() }, (err, foundObject) => {
-        if (err) {
-            console.error(err);
-        } else {
-            if (!foundObject) {
-                console.log("Room not found");
+    await Room.findOne(
+        { roomId: roomId.toUpperCase() },
+        async (err, foundObject) => {
+            if (err) {
+                console.error(err);
             } else {
-                foundObject.users.push({
-                    userId: userId,
-                    currentUrl: "",
-                    username: username,
-                });
-                foundObject.save();
+                if (!foundObject) {
+                    console.log("Room not found");
+                } else {
+                    foundObject.users.push({
+                        userId: userId,
+                        currentUrl: "",
+                        username: username,
+                    });
+                    await foundObject.save();
+                }
             }
         }
-    });
+    );
 };
 
 leaveRoom = async (roomId, userId) => {
-    await Room.findOne({ roomId: roomId }, async (err, foundObject) => {
-        if (err) {
-            console.error(err);
-        } else {
-            if (!foundObject) {
-                console.log("Room not found");
+    await Room.findOne(
+        { roomId: roomId.toUpperCase() },
+        async (err, foundObject) => {
+            if (err) {
+                console.error(err);
             } else {
-                let foundIdx = null;
-                for (let i = 0; i < foundObject.users.length; i++) {
-                    if (foundObject.users[i].userId === userId) {
-                        foundIdx = i;
-                        break;
+                if (!foundObject) {
+                    console.log("Room not found");
+                } else {
+                    let foundIdx = null;
+                    for (let i = 0; i < foundObject.users.length; i++) {
+                        if (foundObject.users[i].userId === userId) {
+                            foundIdx = i;
+                            break;
+                        }
                     }
-                }
-                if (foundIdx !== null) {
-                    foundObject.users.splice(foundIdx, 1);
-                    if (foundObject.users.length === 0) {
-                        await Room.deleteOne({ roomId });
-                    } else {
-                        await foundObject.save();
+                    if (foundIdx !== null) {
+                        foundObject.users.splice(foundIdx, 1);
+                        if (foundObject.users.length === 0) {
+                            await Room.deleteOne({ roomId });
+                        } else {
+                            await foundObject.save();
+                        }
                     }
                 }
             }
         }
-    });
+    );
 };
 
 updateUrl = async (roomId, userId, url) => {
