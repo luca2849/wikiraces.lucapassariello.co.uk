@@ -20,7 +20,9 @@
     </div>
 </div>
 <script>
-    const socket = io('http://' + document.domain + ':' + location.port);
+    const protocol = window.location.protocol;
+    console.log(protocol)
+    const socket = io(protocol + '//' + document.domain + ':' + location.port);
     $(document).ready(() => {
         // Add disconnect function to body
         $('body').attr('onunload', "disconnectEvent();");
@@ -29,7 +31,6 @@
         $('#gameFrame').attr('src', `/room/<%- roomId %>/wiki/${startPage}`);
         iframeChanged();
         socket.on('update', (data) => {
-            console.log(JSON.parse(data));
             const cleanData = JSON.parse(data);
             const users = cleanData.users;
             let html = ``;
