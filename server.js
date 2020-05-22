@@ -37,15 +37,11 @@ app.use("/static", express.static("static"));
 // Connect to Database
 connectDB();
 
-// Internal Event Emitters
-const events = require("./eventsBus");
-
 // SocketIO Sockets
 io.on("connection", (socket) => {
     socket.on("error", function (reason) {
         console.error("Unable to connect Socket.IO", reason);
     });
-
     console.log(`Socket ${socket.id} connected`);
     socket.on("disconnect", () => {
         socket.removeAllListeners();
@@ -54,16 +50,19 @@ io.on("connection", (socket) => {
     socket.on("leaveRoom", async (data) => {
         await util.leaveRoom(data.roomId, data.userId);
         const room = await Room.findOne({ roomId: data.roomId });
-        socket.emit("update", JSON.stringify(room));
-        socket.broadcast.emit("update", JSON.stringify(room));
+        if (room) {
+            socket.emit("update", JSON.stringify(room));
+            socket.broadcast.emit("update", JSON.stringify(room));
+        }
     });
     socket.on("urlUpdate", async (data) => {
-        console.log(data.userId);
         try {
             await util.updateUrl(data.roomId, data.userId, data.currentUrl);
             const room = await Room.findOne({ roomId: data.roomId });
-            socket.emit("update", JSON.stringify(room));
-            socket.broadcast.emit("update", JSON.stringify(room));
+            if (room) {
+                socket.emit("update", JSON.stringify(room));
+                socket.broadcast.emit("update", JSON.stringify(room));
+            }
         } catch (error) {
             console.error(error);
         }
@@ -72,8 +71,10 @@ io.on("connection", (socket) => {
         try {
             util.foundPage(data.roomId, data.userId);
             const room = await Room.findOne({ roomId: data.roomId });
-            socket.emit("update", JSON.stringify(room));
-            socket.broadcast.emit("update", JSON.stringify(room));
+            if (room) {
+                socket.emit("update", JSON.stringify(room));
+                socket.broadcast.emit("update", JSON.stringify(room));
+            }
         } catch (error) {
             console.error(error);
         }

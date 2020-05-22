@@ -36,6 +36,16 @@ getPagesWithRedirects = async (term) => {
     }
 };
 
+doesPageExist = async (term) => {
+    const wikiUrl = `http://en.wikipedia.org/w/api.php?action=parse&page=${term}&format=json&prop=text|headhtml&contentmodel=wikitext`;
+    const pagesResponseObject = await axios.get(encodeURI(wikiUrl));
+    if (pagesResponseObject.data.error) {
+        return false;
+    } else {
+        return true;
+    }
+};
+
 str_pad = (string) => {
     return string < 10 ? "0" + string : string;
 };
@@ -87,17 +97,17 @@ leaveRoom = async (roomId, userId) => {
             if (!foundObject) {
                 console.log("Room not found");
             } else {
-                let foundIdx;
+                let foundIdx = null;
                 for (let i = 0; i < foundObject.users.length; i++) {
                     if (foundObject.users[i].userId === userId) {
                         foundIdx = i;
                         break;
                     }
                 }
-                if (foundIdx || foundIdx === 0) {
+                if (foundIdx !== null) {
                     foundObject.users.splice(foundIdx, 1);
                     if (foundObject.users.length === 0) {
-                        await deleteRoom(roomId);
+                        await Room.deleteOne({ roomId });
                     } else {
                         await foundObject.save();
                     }
@@ -105,10 +115,6 @@ leaveRoom = async (roomId, userId) => {
             }
         }
     });
-};
-
-deleteRoom = async (roomId) => {
-    await Room.deleteOne({ roomId });
 };
 
 updateUrl = async (roomId, userId, url) => {
@@ -168,4 +174,5 @@ module.exports = {
     leaveRoom,
     updateUrl,
     foundPage,
+    doesPageExist,
 };

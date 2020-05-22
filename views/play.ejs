@@ -1,44 +1,5 @@
 <%- include('partials/header') %>
 
-<style>
-    iframe {
-        width: 99%;
-        height: 89vh;
-        border: none;
-        box-shadow: 5px 5px 20px 10px rgb(170, 170, 170);
-        margin: 10px auto 0 auto;
-    }
-
-    .iframeContainer {
-        margin: 0;
-    }
-
-    .roomInfo {
-        padding: 5px 5px 5px 20px;
-    }
-
-    .roomInfo h3 {
-        margin: 10px 0;
-    }
-
-    .roomInfo p {
-        text-align: center;
-    }
-
-    .roomInfo p:nth-of-type(2n+1) {
-        font-size: 110%;
-        font-weight: bold;
-    }
-
-    .found {
-        color: green;
-        font-weight: bold;
-    }
-
-    .row {
-        margin-right: 0;
-    }
-</style>
 <div class="row">
     <div class="col-2 roomInfo">
         <h1>WikiRaces</h1>
@@ -64,17 +25,17 @@
         // Add disconnect function to body
         $('body').attr('onunload', "disconnectEvent();");
         $('#gameFrame').attr('onLoad', 'iframeChanged()');
-        const startPage = encodeURIComponent('<%- startPage %>')
+        const startPage = encodeURIComponent(`<%- startPage %>`)
         $('#gameFrame').attr('src', `/room/<%- roomId %>/wiki/${startPage}`);
         iframeChanged();
         socket.on('update', (data) => {
-            console.log("Update Now")
+            console.log(JSON.parse(data));
             const cleanData = JSON.parse(data);
             const users = cleanData.users;
             let html = ``;
             for (let i = 0; i < users.length; i++) {
                 user = users[i];
-                html += `<li class=${user.found === true ? "found" : ""}>${user.username} - ${user.currentUrl.charAt(0).toUpperCase() + user.currentUrl.slice(1)}</li>`
+                html += `<li class=${user.found ? "found" : ""}>${user.username} - ${user.currentUrl.charAt(0).toUpperCase() + user.currentUrl.slice(1)}</li>`
             }
             $('#usersList').html(html);
         })
@@ -100,7 +61,7 @@
             }
         })
     }
-    $(window).unload(function () {
+    $(window).on('unload', function () {
         disconnectEvent();
     });
     disconnectEvent = () => {
@@ -108,7 +69,6 @@
             roomId: "<%- roomId %>",
             userId: "<%- userId %>"
         })
-        window.location.href = window.location.protocol + "//" + window.location.host + "/";
     }
 
 </script>

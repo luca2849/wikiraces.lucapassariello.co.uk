@@ -1,15 +1,16 @@
+// Libraries
 const express = require(`express`);
 const router = express.Router();
 const axios = require(`axios`);
+// Util Functions
 const util = require("../util.js");
-const ROOMS = require("../rooms.js");
-const ee = require(`../eventEmiter`);
+// Middleware
 const roomCheck = require("../middleware/roomCheck");
 const sessionIdCheck = require("../middleware/sessionIdCheck");
+// DB Models
 const Room = require("../models/Room");
 
 router.get("/join", (req, res) => {
-    util.log(JSON.stringify(ROOMS));
     if (!req.session.userId) {
         const userId = util.createId(10);
         req.session.userId = userId;
@@ -46,6 +47,9 @@ router.get("/create", sessionIdCheck, (req, res) => {
 });
 
 router.post("/create", sessionIdCheck, async (req, res) => {
+    if (!req.body.endPage && !req.body.startPage && !req.body.roomId) {
+        return res.redirect(`/room/create`);
+    }
     const startPage = await util.getPagesWithRedirects(req.body.startPage);
     const endPage = await util.getPagesWithRedirects(req.body.endPage);
     room = new Room({
@@ -88,12 +92,20 @@ router.get("/:id/play", [roomCheck, sessionIdCheck], async (req, res) => {
     const roomId = req.params.id;
     const userId = req.session.userId;
     const room = await Room.findOne({ roomId });
+    if (!room) {
+        return res.redirect(`/room/join`);
+    }
     return res.render(`play.ejs`, {
         userId: userId,
         roomId: roomId,
         startPage: util.toSentenceCase(room.startPage),
         endPage: util.toSentenceCase(room.endPage),
     });
+});
+
+router.get("/test", async (req, res) => {
+    console.log(await util.doesPageExist("Alien (film)"));
+    res.send("TEST PAGE");
 });
 
 module.exports = router;

@@ -169,3 +169,41 @@ header {
 .wikiArticle {
     padding: 20px;
 }
+/* Play Page Styling */
+iframe {
+    width: 99%;
+    height: 89vh;
+    border: none;
+    box-shadow: 5px 5px 20px 10px rgb(170, 170, 170);
+    margin: 10px auto 0 auto;
+}
+
+.iframeContainer {
+    margin: 0;
+}
+
+.roomInfo {
+    padding: 5px 5px 5px 20px;
+}
+
+.roomInfo h3 {
+    margin: 10px 0;
+}
+
+.roomInfo p {
+    text-align: center;
+}
+
+.roomInfo p:nth-of-type(2n + 1) {
+    font-size: 110%;
+    font-weight: bold;
+}
+
+.found {
+    color: green;
+    font-weight: bold;
+}
+
+.row {
+    margin-right: 0;
+}

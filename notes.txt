@@ -1,2 +1,7 @@
 Notes For Wikiraces System
-- Everything to do with ROOMS needs to be converted over to MongoDB instance, either through Atlas or RED
+- Add validation to create page
+- Remove unused requires & imports (ROOMS, emitters, etc.)
+- Remove useless logs
+
+Done
+- Validation on sockets
