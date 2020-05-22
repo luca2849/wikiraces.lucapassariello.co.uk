@@ -35,7 +35,7 @@
         }
         $('#roomId').val(result);
 
-        $('#startPage').on('keyup', () => {
+        $('#startPage').on('keypress', () => {
             const value = $('#startPage').val();
             $.ajax({
                 url: `https://en.wikipedia.org/w/api.php?origin=*&action=opensearch&search=${value}`,
@@ -49,7 +49,7 @@
                 }
             })
         })
-        $('#endPage').on('keyup', () => {
+        $('#endPage').on('keypress', () => {
             const value = $('#endPage').val();
             $.ajax({
                 url: `https://en.wikipedia.org/w/api.php?origin=*&action=opensearch&search=${value}`,
