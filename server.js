@@ -56,10 +56,10 @@ io.on("connection", (socket) => {
         await util.leaveRoom(data.roomId, data.userId);
         await new Promise((r) => setTimeout(r, 500));
         const room = await Room.findOne({ roomId: data.roomId });
+        socket.leave(data.roomId);
         if (room) {
             io.in(data.roomId).emit("update", JSON.stringify(room));
         }
-        socket.leave(data.roomId);
     });
     socket.on("urlUpdate", async (data) => {
         try {
