@@ -64,16 +64,16 @@
             const start = new Date();
             timer = setInterval(() => {
                 const now = new Date();
-                const diff = now - start;                
+                const diff = now - start;
                 let min = Math.floor(diff / 60000).toString();
                 let sec = (Math.floor(diff / 1000) - (60 * min)).toString();
-                if(min.length === 1){
+                if (min.length === 1) {
                     min = `0${min}`;
                 }
-                if(sec.length === 1){
+                if (sec.length === 1) {
                     sec = `0${sec}`;
                 }
-                let milli = diff.toString()[diff.toString().length - 3].toString() + "" + diff.toString()[diff.toString().length - 2].toString();        
+                let milli = diff.toString()[diff.toString().length - 3].toString() + "" + diff.toString()[diff.toString().length - 2].toString();
                 $('#timer').text(`${min}:${sec}:${milli}`);
             }, 10);
             $('.iframeContainer').css('display', 'block');
@@ -98,7 +98,7 @@
                 userId: "<%- userId %>",
                 currentUrl: title
             })
-            if (title === "<%- endPage %>") {
+            if (title.toLowerCase() === "<%- endPage %>".toLowerCase()) {
                 clearInterval(timer);
                 socket.emit('foundPage', {
                     roomId: "<%- roomId %>",
