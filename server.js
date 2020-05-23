@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const socketio = require("socket.io");
 const io = socketio();
+const morgan = require("morgan");
 app.io = io;
 const session = require("express-session");
 const bodyParser = require("body-parser");
@@ -16,6 +17,11 @@ app.use(
         resave: true,
     })
 );
+
+// Init Morgan for HTTP logging
+// app.use(
+//     morgan(":method :url :status :res[content-length] - :response-time ms")
+// );
 
 // Init Middleware
 app.use(express.json({ extend: false }));
@@ -51,17 +57,17 @@ io.on("connection", (socket) => {
         await new Promise((r) => setTimeout(r, 500));
         const room = await Room.findOne({ roomId: data.roomId });
         if (room) {
-            socket.to(data.roomId).emit("update", JSON.stringify(room));
+            io.in(data.roomId).emit("update", JSON.stringify(room));
         }
         socket.leave(data.roomId);
     });
     socket.on("urlUpdate", async (data) => {
         try {
             await util.updateUrl(data.roomId, data.userId, data.currentUrl);
+            await new Promise((r) => setTimeout(r, 500));
             const room = await Room.findOne({ roomId: data.roomId });
             if (room) {
-                socket.to(data.roomId).emit("update", JSON.stringify(room));
-                socket.emit("update", JSON.stringify(room));
+                io.in(data.roomId).emit("update", JSON.stringify(room));
             }
         } catch (error) {
             console.error(error);
@@ -69,18 +75,26 @@ io.on("connection", (socket) => {
     });
     socket.on("foundPage", async (data) => {
         try {
-            util.foundPage(data.roomId, data.userId);
+            util.foundPage(data.roomId, data.userId, data.time);
+            await new Promise((r) => setTimeout(r, 500));
             const room = await Room.findOne({ roomId: data.roomId });
             if (room) {
-                socket.to(data.roomId).emit("update", JSON.stringify(room));
-                socket.emit("update", JSON.stringify(room));
+                io.in(data.roomId).emit("update", JSON.stringify(room));
             }
         } catch (error) {
             console.error(error);
         }
     });
     socket.on("startGame", async (data) => {
+        await new Promise((r) => setTimeout(r, 500));
         io.in(data.roomId).emit("gameStarted");
+    });
+    socket.on("joinRoom", async (data) => {
+        const room = await Room.findOne({ roomId: data.roomId });
+        if (room) {
+            socket.join(data.roomId);
+            io.in(data.roomId).emit("update", JSON.stringify(room));
+        }
     });
 });
 

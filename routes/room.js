@@ -11,13 +11,9 @@ const sessionIdCheck = require("../middleware/sessionIdCheck");
 const Room = require("../models/Room");
 
 router.get("/join", (req, res) => {
-    if (!req.session.userId) {
-        const userId = util.createId(10);
-        req.session.userId = userId;
-    }
-    res.render("joinRoom.ejs", { userId: req.session.userId });
+    res.render("joinRoom.ejs");
 });
-router.post("/join", async (req, res) => {
+router.post("/join", sessionIdCheck, async (req, res) => {
     if (req.body.roomId === "" || req.body.username === "") {
         console.log("Validation Error");
         return res.redirect("/room/join");
@@ -26,31 +22,17 @@ router.post("/join", async (req, res) => {
         console.log("Validation Length Error");
         return res.redirect("/room/join");
     }
-    await Room.findOne(
-        { roomId: req.body.roomId.toUpperCase() },
-        async (err, foundObject) => {
-            if (err) {
-                console.error(err);
-                return res.redirect(`/room/join?error=${req.body.roomId}`);
-            } else {
-                if (!foundObject) {
-                    console.log("Room not found");
-                    return res.redirect(`/room/join?error=${req.body.roomId}`);
-                } else {
-                    await util.joinRoom(
-                        req.body.roomId,
-                        req.session.userId,
-                        req.body.username
-                    );
-                }
-            }
-        }
-    );
-    await new Promise((r) => setTimeout(r, 500));
+    const room = await Room.findOne({ roomId: req.body.roomId.toUpperCase() });
+    if (!room) {
+        console.log("Room Not Found");
+        return mres.redirect(`/room/join?error=${req.body.roomId}`);
+    }
+    await util.joinRoom(req.body.roomId, req.session.userId, req.body.username);
+    // await new Promise((r) => setTimeout(r, 1000));
     return res.redirect(`/room/${req.body.roomId}/play`);
 });
 
-router.get("/create", sessionIdCheck, (req, res) => {
+router.get("/create", (req, res) => {
     res.render("createRoom.ejs");
 });
 
@@ -106,17 +88,15 @@ router.get("/:id/wiki/:term/:term2", (req, res) => {
 router.get("/:id/play", [sessionIdCheck, roomCheck], async (req, res) => {
     const roomId = req.params.id;
     const userId = req.session.userId;
+    if (!roomId || !userId) {
+        return res.redirect("/room/join");
+    }
     const room = await Room.findOne({ roomId });
     if (!room) {
+        console.log("Room Not Found");
         return res.redirect(`/room/join`);
     }
-    await req.app.socket.join(roomId);
     let currentUser = await util.findInRoom(userId, roomId);
-    if (currentUser === undefined) {
-        currentUser = { host: false };
-    }
-    req.app.socket.to(roomId).emit("update", JSON.stringify(room));
-    req.app.socket.emit("update", JSON.stringify(room));
     return res.render(`play.ejs`, {
         userId: userId,
         roomId: roomId,

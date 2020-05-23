@@ -70,27 +70,23 @@ log = (msg) => {
 };
 
 joinRoom = async (roomId, userId, username) => {
-    await Room.findOne(
-        { roomId: roomId.toUpperCase() },
-        async (err, foundObject) => {
-            if (err) {
-                console.error(err);
-            } else {
-                if (!foundObject) {
-                    console.log("Room not found");
-                } else {
-                    const host = foundObject.users.length === 0;
-                    foundObject.users.push({
-                        userId: userId,
-                        currentUrl: "",
-                        username: username,
-                        host: host,
-                    });
-                    await foundObject.save();
-                }
-            }
-        }
-    );
+    try {
+        const room = await Room.findOne({ roomId: roomId.toUpperCase() });
+    } catch (error) {
+        console.error(error);
+        return;
+    }
+    if (!room) {
+        console.log("Room not found");
+        return;
+    }
+    room.users.push({
+        userId: userId,
+        currentUrl: "",
+        username: username,
+        host: room.users.length === 0,
+    });
+    await room.save();
 };
 
 leaveRoom = async (roomId, userId) => {
@@ -148,7 +144,7 @@ updateUrl = async (roomId, userId, url) => {
     });
 };
 
-foundPage = (roomId, userId) => {
+foundPage = (roomId, userId, time) => {
     Room.findOne({ roomId }, (err, foundObject) => {
         if (err) {
             console.error(err);
@@ -165,6 +161,7 @@ foundPage = (roomId, userId) => {
                 }
                 if (foundIdx || foundIdx === 0) {
                     foundObject.users[foundIdx].found = true;
+                    foundObject.users[foundIdx].time = time;
                     foundObject.save();
                 }
             }

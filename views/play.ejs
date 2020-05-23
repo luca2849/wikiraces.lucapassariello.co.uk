@@ -11,6 +11,8 @@
         <p><%- startPage %></p>
         <p class="sideTitle">End Page</p>
         <p><%- endPage %></p>
+        <p class="sideTitle">Timer</p>
+        <p id="timer">00:00</p>
         <% if (host === true) { %>
         <p class="sideTitle">Start Game</p>
         <button id="startButton" onClick="startGame()">Start</button>
@@ -35,10 +37,10 @@
             </div>
         </div>
     </div>
-
 </div>
 <script>
     const socket = io('/', { secure: true });
+    let timer;
     $(document).ready(() => {
         // Add disconnect function to body
         $('body').attr('onunload', "disconnectEvent();");
@@ -46,8 +48,8 @@
         const startPage = encodeURIComponent(`<%- startPage %>`)
         $('#gameFrame').attr('src', `/room/<%- roomId %>/wiki/${startPage}`);
         iframeChanged();
+        socket.emit('joinRoom', { roomId: "<%- roomId %>" });
         socket.on('update', (data) => {
-            console.log(JSON.parse(data));
             const cleanData = JSON.parse(data);
             const users = cleanData.users;
             let html = [];
@@ -55,16 +57,30 @@
                 user = users[i];
                 if (users[i].userId === "<%- userId %>") {
                     html.push(html[0]);
-                    html[0] = (`<li class=${user.found ? "found" : ""}>${user.username} - ${user.currentUrl.charAt(0).toUpperCase() + user.currentUrl.slice(1)}</li>`)
+                    html[0] = (`<li class=${user.found ? "found" : ""}>${user.username} ${user.found ? '(' + user.time + ')' : ""} - ${user.currentUrl.charAt(0).toUpperCase() + user.currentUrl.slice(1)}</li>`)
                 } else {
-                    html.push(`<li class=${user.found ? "found" : ""}>${user.username} - ${user.currentUrl.charAt(0).toUpperCase() + user.currentUrl.slice(1)}</li>`)
+                    html.push(`<li class=${user.found ? "found" : ""}>${user.username} ${user.found ? '(' + user.time + ')' : ""} - ${user.currentUrl.charAt(0).toUpperCase() + user.currentUrl.slice(1)}</li>`)
                 }
             }
             $('#usersList').html(html.join(""));
         })
         socket.on('gameStarted', () => {
-            console.log("Game Started");
             $('.startPage').remove();
+            const start = new Date();
+            timer = setInterval(() => {
+                const now = new Date();
+                const diff = now - start;                
+                let min = Math.floor(diff / 60000).toString();
+                let sec = (Math.floor(diff / 1000) - (60 * min)).toString();
+                if(min.length === 1){
+                    min = `0${min}`;
+                }
+                if(sec.length === 1){
+                    sec = `0${sec}`;
+                }
+                let milli = diff.toString()[diff.toString().length - 3].toString() + "" + diff.toString()[diff.toString().length - 2].toString();        
+                $('#timer').text(`${min}:${sec}:${milli}`);
+            }, 10);
             $('.iframeContainer').css('display', 'block');
         })
     })
@@ -88,9 +104,11 @@
                 currentUrl: title
             })
             if (title === "<%- endPage %>") {
+                clearInterval(timer);
                 socket.emit('foundPage', {
                     roomId: "<%- roomId %>",
-                    userId: "<%- userId %>"
+                    userId: "<%- userId %>",
+                    time: $('#timer').text(),
                 })
             }
         })
