@@ -22,14 +22,14 @@ router.post("/join", sessionIdCheck, async (req, res) => {
         console.log("Validation Length Error");
         return res.redirect("/room/join");
     }
-    const room = await Room.findOne({ roomId: req.body.roomId.toUpperCase() });
+    const roomId = req.body.roomId.toUpperCase();
+    const room = await Room.findOne({ roomId: roomId });
     if (!room) {
         console.log("Room Not Found");
         return mres.redirect(`/room/join?error=${req.body.roomId}`);
     }
-    await util.joinRoom(req.body.roomId, req.session.userId, req.body.username);
-    // await new Promise((r) => setTimeout(r, 1000));
-    return res.redirect(`/room/${req.body.roomId}/play`);
+    await util.joinRoom(roomId, req.session.userId, req.body.username);
+    return res.redirect(`/room/${roomId}/play`);
 });
 
 router.get("/create", (req, res) => {

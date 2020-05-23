@@ -71,7 +71,7 @@ log = (msg) => {
 
 joinRoom = async (roomId, userId, username) => {
     try {
-        const room = await Room.findOne({ roomId: roomId.toUpperCase() });
+        const room = await Room.findOne({ roomId: roomId });
     } catch (error) {
         console.error(error);
         return;
