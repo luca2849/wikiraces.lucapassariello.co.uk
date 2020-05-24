@@ -47,10 +47,13 @@ io.on("connection", (socket) => {
     socket.on("error", function (reason) {
         console.error("Unable to connect Socket.IO", reason);
     });
-    //console.log(`Socket ${socket.id} connected`);
-    socket.on("disconnect", () => {
+    socket.on("disconnect", async () => {
         socket.removeAllListeners();
-        //console.log(`Socket ${socket.id} disconnected`);
+        try {
+            await util.leaveRoom(data.roomId, data.userId);
+        } catch (error) {
+            console.error(error);
+        }
     });
     socket.on("leaveRoom", async (data) => {
         await util.leaveRoom(data.roomId, data.userId);
