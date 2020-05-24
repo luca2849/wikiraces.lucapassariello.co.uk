@@ -173,14 +173,14 @@ findInRoom = async (userId, roomId) => {
     const room = await Room.findOne({ roomId });
     if (!room) {
         console.log("Room not found");
-        return undefined;
+        return null;
     }
     for (let i = 0; i < room.users.length; i++) {
         if (room.users[i].userId === userId) {
             return room.users[i];
         }
     }
-    return undefined;
+    return null;
 };
 
 module.exports = {

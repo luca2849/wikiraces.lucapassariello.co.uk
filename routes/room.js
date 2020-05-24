@@ -26,7 +26,7 @@ router.post("/join", sessionIdCheck, async (req, res) => {
     const room = await Room.findOne({ roomId: roomId });
     if (!room) {
         console.log("Room Not Found");
-        return mres.redirect(`/room/join?error=${req.body.roomId}`);
+        return res.redirect(`/room/join?error=${req.body.roomId}`);
     }
     await util.joinRoom(roomId, req.session.userId, req.body.username);
     return res.redirect(`/room/${roomId}/play`);

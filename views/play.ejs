@@ -1,25 +1,31 @@
 <%- include('partials/header') %>
 
 <div class="row">
-    <div class="col-sm-3 roomInfo col-xs-12">
-        <div class="titleContainer">
-            <h3 class="title">Player Info</h3>
-        </div>
-        <ul id="usersList">
+    <div class="roomInfo col-lg-3 col-md-12 col-sm-12 col-xs-12">
+        <div class="row">
+            <div class="col-lg-12 col-md-6 col-sm-6 col-xs-6">
+                <div class="titleContainer">
+                    <h3 class="title">Player Info</h3>
+                </div>
+                <ul id="usersList">
 
-        </ul>
-        <div class="titleContainer">
-            <h3 class="title">Game Info</h3>
+                </ul>
+            </div>
+            <div class="col-lg-12 col-md-6 col-sm-6 col-xs-6">
+                <div class="titleContainer">
+                    <h3 class="title">Game Info</h3>
+                </div>
+                <p>Game ID - <b><%- roomId %></b></p>
+                <p>From - <b><%- startPage %></b></p>
+                <p>To - <b><%- endPage %></b></p>
+                <p id="timer">Timer - <b>00:00:00</b></p>
+                <% if (host === true) { %>
+                <button id="startButton" onClick="startGame()">Start</button>
+                <% } %>
+            </div>
         </div>
-        <p>Game ID - <b><%- roomId %></b></p>
-        <p>From - <b><%- startPage %></b></p>
-        <p>To - <b><%- endPage %></b></p>
-        <p id="timer">Timer - <b>00:00:00</b></p>
-        <% if (host === true) { %>
-        <button id="startButton" onClick="startGame()">Start</button>
-        <% } %>
     </div>
-    <div class="gameContainer col-sm-9 col-xs-12">
+    <div class="gameContainer col-lg-9 col-md-12 col-sm-12 col-xs-12">
         <div class="iframeContainer">
             <iframe id="gameFrame"></iframe>
         </div>

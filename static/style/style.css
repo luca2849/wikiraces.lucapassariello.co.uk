@@ -12,16 +12,21 @@ body {
     word-spacing: 2px;
     padding-left: 10px;
 }
-.titleContainer {
-    margin: 20px 0;
-    border-bottom: 6px solid transparent;
-    border-image: linear-gradient(
+.titleContainer:after {
+    content: "";
+    display: block;
+    height: 6px;
+    background-image: linear-gradient(
         90deg,
         rgba(131, 58, 180, 1) 0%,
         rgba(253, 29, 29, 1) 50%,
         rgba(252, 176, 69, 1) 100%
     );
-    border-image-slice: 1;
+    background-repeat: no-repeat;
+    background-position: center bottom;
+}
+.titleContainer {
+    margin: 20px 0;
 }
 /* Scroll Bar */
 body::-webkit-scrollbar-track {
@@ -35,7 +40,6 @@ body::-webkit-scrollbar {
 
 body::-webkit-scrollbar-thumb {
     background-color: #0ae;
-
     background-image: -webkit-gradient(
         linear,
         0 0,
@@ -80,6 +84,12 @@ header {
     height: 1200px;
 }
 /* Navigation */
+.openIcon {
+    display: none;
+    font-size: 300%;
+    padding: 30px;
+    color: rgb(206, 206, 206) !important;
+}
 .navbar {
     background: rgb(13, 13, 13);
     font-size: 120%;
@@ -87,7 +97,7 @@ header {
 .navbar a {
     color: rgb(161, 161, 161);
     text-decoration: none;
-    transition: all 0.3s;
+    transition: color 0.3s;
 }
 .navbar a:hover {
     color: white;
@@ -115,6 +125,67 @@ header {
     padding: 0 20px;
     display: inline-block;
 }
+/* Side Navigation */
+.side_navigation {
+    font-size: 200%;
+    height: 100%;
+    width: 0;
+    position: fixed;
+    top: 0;
+    right: 0;
+    background: rgb(50, 50, 50);
+    z-index: 100;
+    overflow-x: hidden;
+    padding-top: 50px;
+    transition: 0.5s cubic-bezier(0.215, 0.61, 0.355, 1);
+    -webkit-transition: 0.5s cubic-bezier(0.215, 0.61, 0.355, 1);
+    -moz-transition: 0.5s cubic-bezier(0.215, 0.61, 0.355, 1);
+    -ms-transition: 0.5s cubic-bezier(0.215, 0.61, 0.355, 1);
+    -o-transition: 0.5s cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+.side_navigation a:link,
+.side_navigation a:visited {
+    display: block;
+    position: relative;
+    padding: 25px 15px;
+    color: #fafafa;
+    font-weight: 400;
+    text-decoration: none;
+    background: linear-gradient(to right, #ffffff, #ffffff);
+    background-repeat: no-repeat;
+    background-size: 0 100%;
+    transition: background-size 0.3s, color 0.3s;
+    -webkit-transition: background-size 0.3s, color 0.3s;
+    -moz-transition: background-size 0.3s, color 0.3s;
+    -ms-transition: background-size 0.3s, color 0.3s;
+    -o-transition: background-size 0.3s, color 0.3s;
+}
+.side_navigation a:hover,
+.side_navigation a:active {
+    color: rgb(51, 51, 51);
+    background-size: 100% 100%;
+}
+.side_navigation a:first-of-type {
+    margin-top: 40px;
+}
+.side_title {
+    color: white;
+    margin: 20px 0;
+    padding: 10px;
+    font-size: 175%;
+}
+.open {
+    width: 100vw;
+}
+.closeIcon {
+    color: rgb(255, 109, 109) !important;
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 20px;
+    font-size: 250%;
+    display: block;
+}
 /* Join Room */
 .roomForm {
     width: 50%;
@@ -127,6 +198,9 @@ header {
     margin: 10px 0;
     border: none;
     box-shadow: 7px 10px 23px 2px rgba(171, 171, 171, 1);
+    -webkit-box-shadow: 7px 10px 23px 2px rgba(171, 171, 171, 1);
+    -moz-box-shadow: 7px 10px 23px 2px rgba(171, 171, 171, 1);
+    -webkit-appearance: none;
 }
 .roomForm .form-group {
     margin: 2em 0;
