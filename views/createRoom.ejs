@@ -49,8 +49,9 @@
                 success: (result) => {
                     let html = ``;
                     const textOptions = result[1];
+                    const wikiLinks = result[3];
                     textOptions.map((value, index) => {
-                        html += `<option value="${value}">`
+                        html += `<option label="${wikiLinks[index]}" value="${value}">`
                     })
                     $('#startPageList').html(html);
                 }
@@ -63,8 +64,9 @@
                 success: (result) => {
                     let html = ``;
                     const textOptions = result[1];
+                    const wikiLinks = result[3];
                     textOptions.map((value, index) => {
-                        html += `<option value="${value}">`
+                        html += `<option label="${wikiLinks[index]}" value="${value}">`
                     })
                     $('#endPageList').html(html);
                 }

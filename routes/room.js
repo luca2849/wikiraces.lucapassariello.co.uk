@@ -100,8 +100,8 @@ router.get("/:id/play", [sessionIdCheck, roomCheck], async (req, res) => {
     return res.render(`play.ejs`, {
         userId: userId,
         roomId: roomId,
-        startPage: util.toSentenceCase(room.startPage),
-        endPage: util.toSentenceCase(room.endPage),
+        startPage: room.startPage,
+        endPage: room.endPage,
         host: currentUser.host,
     });
 });
