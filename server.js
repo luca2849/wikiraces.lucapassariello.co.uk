@@ -49,11 +49,11 @@ io.on("connection", (socket) => {
     });
     socket.on("disconnect", async () => {
         socket.removeAllListeners();
-        try {
-            await util.leaveRoom(data.roomId, data.userId);
-        } catch (error) {
-            console.error(error);
-        }
+        // try {
+        //     await util.leaveRoom(data.roomId, data.userId);
+        // } catch (error) {
+        //     console.error(error);
+        // }
     });
     socket.on("leaveRoom", async (data) => {
         await util.leaveRoom(data.roomId, data.userId);
