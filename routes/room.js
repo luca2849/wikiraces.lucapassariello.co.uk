@@ -33,7 +33,8 @@ router.post("/join", sessionIdCheck, async (req, res) => {
 });
 
 router.get("/create", (req, res) => {
-    res.render("createRoom.ejs");
+    const roomId = util.createId(5);
+    res.render("createRoom.ejs", { roomId: roomId });
 });
 
 router.post("/create", sessionIdCheck, async (req, res) => {

@@ -33,14 +33,7 @@
             $('#createRoomError').css('display', 'block');
             $('#createRoomError').text("One or more pages you entered did not exist");
         }
-        let result = "";
-        const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-        for (let i = 0; i < 5; i++) {
-            result += characters.charAt(
-                Math.floor(Math.random() * characters.length)
-            );
-        }
-        $('#roomId').val(result);
+        $('#roomId').val("<%- roomId %>");
 
         $('#startPage').on('keypress', () => {
             const value = $('#startPage').val();
