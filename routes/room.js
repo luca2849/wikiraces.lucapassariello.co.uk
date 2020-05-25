@@ -67,13 +67,14 @@ router.get("/:id/wiki/:term", async (req, res) => {
             /href="\/wiki/g,
             `href="/room/${req.params.id}/wiki`
         );
-        res.render(`wiki.ejs`, {
+        return res.render(`wiki.ejs`, {
             body: new_body,
             title: resp.data.parse.title,
             userId: req.session.userId,
         });
     } catch (error) {
-        res.redirect("/");
+        console.error(error);
+        return res.redirect(`/${req.params.id}/wiki/Wikipedia`);
     }
 });
 
