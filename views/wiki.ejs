@@ -11,4 +11,17 @@
     </div>
 </div>
 
+<script>
+    //Remove image links
+    const imageLinks = $('.image');
+    imageLinks.attr('href', '');
+    const magnifyButtons = $('.magnify a');
+    magnifyButtons.remove();
+</script>
+<style>
+    .image img {
+        pointer-events: none;
+    }
+</style>
+
 <%- include('partials/footer') %>

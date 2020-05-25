@@ -63,7 +63,7 @@ router.get("/:id/wiki/:term", async (req, res) => {
         const uri = `http://en.wikipedia.org/w/api.php?action=parse&page=${req.params.term}&format=json&prop=text|headhtml&contentmodel=wikitext`;
         const resp = await axios.get(encodeURI(uri));
         let body = resp.data.parse.text["*"];
-        const new_body = body.replace(
+        let new_body = body.replace(
             /href="\/wiki/g,
             `href="/room/${req.params.id}/wiki`
         );
