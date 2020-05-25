@@ -5,7 +5,7 @@ const Room = require("./models/Room");
 // Function for creating IDs
 createId = (length) => {
     let result = "";
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+    const characters = "ACDFGHJKLMNQRSUVWXYZ1234567890";
     for (let i = 0; i < length; i++) {
         result += characters.charAt(
             Math.floor(Math.random() * characters.length)
