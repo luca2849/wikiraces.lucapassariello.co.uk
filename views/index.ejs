@@ -3,7 +3,7 @@
     <p>We Use Cookies</p>
     <p>By using our site, you agree to our use of cookies to deliver a better site experience.</p>
     <p>Click <a href="#">here</a> to view our cookie & privacy policy.</p>
-    <button onClick="$('.cookieWarning').fadeOut(300)">Got it!</button>
+    <button onClick="cookieAck()">Got it!</button>
 </div>
 <header>
     <div class="welcomeContainer">
@@ -11,4 +11,13 @@
         <p class="welcomeSubtitle">Web App for creating & playing Wikipedia races, using Wikipedia's own API.</p>
     </div>
 </header>
+<script>
+    if (localStorage.getItem('cookieSeen') != 'shown') {
+        $('.cookieWarning').delay(500).fadeIn(300);
+    };
+    cookieAck = () => {
+        localStorage.setItem('cookieSeen', 'shown');
+        $('.cookieWarning').fadeOut(300);
+    }
+</script>
 <%- include('partials/footer') %>
