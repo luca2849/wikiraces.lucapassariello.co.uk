@@ -198,13 +198,22 @@ header {
     background: rgb(253, 253, 253);
     margin: 20px;
     border-radius: 5px;
-    box-shadow: 3px 3px 10px rgb(54, 54, 54);
+    box-shadow: 2px 2px 20px rgb(109, 109, 109);
+    -webkit-box-shadow: 2px 2px 20px rgb(109, 109, 109);
+    -moz-box-shadow: 2px 2px 20px rgb(109, 109, 109);
+    -webkit-appearance: none;
 }
-.cookieWarning p:first-child {
+.cookieWarning p:first-of-type {
     font-weight: bold;
     letter-spacing: 1px;
     word-spacing: 1px;
     font-size: 110%;
+}
+.cookieWarning p:not(:first-child) {
+    margin: 5px 0;
+}
+.cookieWarning p:last-of-type {
+    margin-bottom: 20px;
 }
 .cookieWarning button {
     padding: 10px 20px;
