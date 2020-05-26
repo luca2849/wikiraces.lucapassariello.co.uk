@@ -186,6 +186,41 @@ header {
     font-size: 250%;
     display: block;
 }
+/* Cookie Warning */
+.cookieWarning {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    padding: 20px;
+    z-index: 10;
+    width: 15%;
+    background: rgb(253, 253, 253);
+    margin: 20px;
+    border-radius: 5px;
+    box-shadow: 3px 3px 10px rgb(54, 54, 54);
+}
+.cookieWarning p:first-child {
+    font-weight: bold;
+    letter-spacing: 1px;
+    word-spacing: 1px;
+    font-size: 110%;
+}
+.cookieWarning button {
+    padding: 10px 20px;
+    background: rgb(11, 206, 255);
+    outline: none;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    word-spacing: 1px;
+    display: block;
+    margin: 0 auto;
+    transition: all 0.3s;
+}
+.cookieWarning button:hover {
+    background: rgb(49, 159, 250);
+    color: white;
+}
 /* Join Room */
 .roomForm {
     width: 50%;
