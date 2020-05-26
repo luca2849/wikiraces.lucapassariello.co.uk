@@ -6,4 +6,8 @@ router.get("/", (req, res) => {
     res.render("index.ejs");
 });
 
+router.get("/policies", (req, res) => {
+    res.render("policies.ejs");
+});
+
 module.exports = router;
