@@ -28,6 +28,16 @@ body {
 .titleContainer {
     margin: 20px 0;
 }
+.subtitle {
+    border: none;
+    letter-spacing: 1px;
+    word-spacing: 2px;
+}
+.sectionTitle {
+    font-weight: 400;
+    letter-spacing: 1px;
+    word-spacing: 2px;
+}
 /* Scroll Bar */
 body::-webkit-scrollbar-track {
     background-color: #f5f5f5;
@@ -230,6 +240,16 @@ header {
 .cookieWarning button:hover {
     background: rgb(49, 159, 250);
     color: white;
+}
+.cookieWarning a {
+    color: rgb(76, 155, 175);
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s;
+    text-decoration: none;
+}
+.cookieWarning a:hover {
+    color: black;
+    border-bottom: 2px solid black;
 }
 /* Join Room */
 .roomForm {
