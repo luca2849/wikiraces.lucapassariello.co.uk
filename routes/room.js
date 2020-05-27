@@ -7,13 +7,14 @@ const util = require("../util.js");
 // Middleware
 const roomCheck = require("../middleware/roomCheck");
 const sessionIdCheck = require("../middleware/sessionIdCheck");
+const accessLog = require("../middleware/accessLog");
 // DB Models
 const Room = require("../models/Room");
 
-router.get("/join", (req, res) => {
+router.get("/join", accessLog, (req, res) => {
     res.render("joinRoom.ejs");
 });
-router.post("/join", sessionIdCheck, async (req, res) => {
+router.post("/join", [sessionIdCheck, accessLog], async (req, res) => {
     if (req.body.roomId === "" || req.body.username === "") {
         console.log("Validation Error");
         return res.redirect("/room/join");
@@ -32,12 +33,12 @@ router.post("/join", sessionIdCheck, async (req, res) => {
     return res.redirect(`/room/${roomId}/play`);
 });
 
-router.get("/create", (req, res) => {
+router.get("/create", accessLog, (req, res) => {
     const roomId = util.createId(5);
     res.render("createRoom.ejs", { roomId: roomId });
 });
 
-router.post("/create", sessionIdCheck, async (req, res) => {
+router.post("/create", [sessionIdCheck, accessLog], async (req, res) => {
     if (!req.body.endPage && !req.body.startPage && !req.body.roomId) {
         return res.redirect(`/room/create`);
     }
@@ -59,7 +60,7 @@ router.post("/create", sessionIdCheck, async (req, res) => {
     }
 });
 
-router.get("/:id/wiki/:term", async (req, res) => {
+router.get("/:id/wiki/:term", accessLog, async (req, res) => {
     try {
         const uri = `http://en.wikipedia.org/w/api.php?action=parse&page=${req.params.term}&format=json&prop=text|headhtml&contentmodel=wikitext`;
         const resp = await axios.get(encodeURI(uri));
@@ -87,25 +88,29 @@ router.get("/:id/wiki/:term/:term2", (req, res) => {
     );
 });
 
-router.get("/:id/play", [sessionIdCheck, roomCheck], async (req, res) => {
-    const roomId = req.params.id;
-    const userId = req.session.userId;
-    if (!roomId || !userId) {
-        return res.redirect("/room/join");
+router.get(
+    "/:id/play",
+    [sessionIdCheck, roomCheck, accessLog],
+    async (req, res) => {
+        const roomId = req.params.id;
+        const userId = req.session.userId;
+        if (!roomId || !userId) {
+            return res.redirect("/room/join");
+        }
+        const room = await Room.findOne({ roomId });
+        if (!room) {
+            console.log("Room Not Found");
+            return res.redirect(`/room/join`);
+        }
+        let currentUser = await util.findInRoom(userId, roomId);
+        return res.render(`play.ejs`, {
+            userId: userId,
+            roomId: roomId,
+            startPage: room.startPage,
+            endPage: room.endPage,
+            host: currentUser.host,
+        });
     }
-    const room = await Room.findOne({ roomId });
-    if (!room) {
-        console.log("Room Not Found");
-        return res.redirect(`/room/join`);
-    }
-    let currentUser = await util.findInRoom(userId, roomId);
-    return res.render(`play.ejs`, {
-        userId: userId,
-        roomId: roomId,
-        startPage: room.startPage,
-        endPage: room.endPage,
-        host: currentUser.host,
-    });
-});
+);
 
 module.exports = router;

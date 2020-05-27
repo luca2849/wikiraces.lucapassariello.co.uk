@@ -1,2 +1,6 @@
+# Node Packages
 node_modules
+# Environment Variables
 default.json
+# Access Logs
+access.log

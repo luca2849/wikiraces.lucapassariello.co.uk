@@ -50,14 +50,13 @@ str_pad = (string) => {
     return string < 10 ? "0" + string : string;
 };
 
-log = (msg) => {
-    const fileName = "msg.log";
+log = (msg, fileName) => {
     // Log message to console
     console.log(msg);
     // Get current date
     const d = new Date();
     const dateString = `[${str_pad(d.getDate())}-${str_pad(
-        d.getMonth()
+        d.getMonth() + 1
     )}-${str_pad(d.getFullYear())} ${str_pad(d.getHours())}:${str_pad(
         d.getMinutes()
     )}:${str_pad(d.getSeconds())}] `;
