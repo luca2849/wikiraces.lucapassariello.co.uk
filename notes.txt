@@ -1,8 +1,0 @@
-Notes For Wikiraces System
-- Clean up start jumbotron
-- Maybe add user gameDisconnect and gameConnect events for notifying of new users
-- Remove unused requires & imports (ROOMS, emitters, etc.)
-- Remove useless logs
-
-Done
-- Validation on sockets

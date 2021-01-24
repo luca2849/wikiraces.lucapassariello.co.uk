@@ -36,6 +36,7 @@ getPagesWithRedirects = async (term) => {
     }
 };
 
+// Checks if a page actually exists in Wikipedia
 doesPageExist = async (term) => {
     const wikiUrl = `http://en.wikipedia.org/w/api.php?action=parse&page=${term}&format=json&prop=text|headhtml&contentmodel=wikitext`;
     const pagesResponseObject = await axios.get(encodeURI(wikiUrl));
@@ -46,28 +47,12 @@ doesPageExist = async (term) => {
     }
 };
 
+// Pads strings for timings, etc.
 str_pad = (string) => {
     return string < 10 ? "0" + string : string;
 };
 
-log = (msg, fileName) => {
-    // Log message to console
-    console.log(msg);
-    // Get current date
-    const d = new Date();
-    const dateString = `[${str_pad(d.getDate())}-${str_pad(
-        d.getMonth() + 1
-    )}-${str_pad(d.getFullYear())} ${str_pad(d.getHours())}:${str_pad(
-        d.getMinutes()
-    )}:${str_pad(d.getSeconds())}] `;
-    // Append date and time to message
-    msg = dateString.toString() + msg;
-    fs.appendFile(fileName, `${msg}\n`, (err) => {
-        if (err) throw err;
-        console.log("Updated");
-    });
-};
-
+// Method for joining a room in the back-end
 joinRoom = async (roomId, userId, username) => {
     try {
         const room = await Room.findOne({ roomId: roomId });
@@ -88,6 +73,7 @@ joinRoom = async (roomId, userId, username) => {
     await room.save();
 };
 
+// Method for joining a room on the back-end
 leaveRoom = async (roomId, userId) => {
     await Room.findOne(
         { roomId: roomId.toUpperCase() },
@@ -119,6 +105,7 @@ leaveRoom = async (roomId, userId) => {
     );
 };
 
+// Updates the user's current page in a race in the database
 updateUrl = async (roomId, userId, url) => {
     await Room.findOne({ roomId }, async (err, foundObject) => {
         if (err) {
@@ -143,6 +130,7 @@ updateUrl = async (roomId, userId, url) => {
     });
 };
 
+// Updates the user to show they have reached the finishing page
 foundPage = (roomId, userId, time) => {
     Room.findOne({ roomId }, (err, foundObject) => {
         if (err) {
@@ -168,6 +156,7 @@ foundPage = (roomId, userId, time) => {
     });
 };
 
+// Finds a users record in a room
 findInRoom = async (userId, roomId) => {
     const room = await Room.findOne({ roomId });
     if (!room) {
@@ -186,7 +175,6 @@ module.exports = {
     createId,
     toSentenceCase,
     getPagesWithRedirects,
-    log,
     joinRoom,
     leaveRoom,
     updateUrl,
