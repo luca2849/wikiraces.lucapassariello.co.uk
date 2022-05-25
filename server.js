@@ -11,11 +11,11 @@ const util = require("./util.js");
 
 // Init Session
 app.use(
-    session({
-        secret: "F66FCCED1BEA9C74",
-        saveUninitialized: true,
-        resave: true,
-    })
+	session({
+		secret: "F66FCCED1BEA9C74",
+		saveUninitialized: true,
+		resave: true,
+	})
 );
 
 // Init Morgan for HTTP logging
@@ -43,62 +43,72 @@ connectDB();
 
 // SocketIO Sockets
 io.on("connection", (socket) => {
-    app.socket = socket;
-    socket.on("error", function (reason) {
-        console.error("Unable to connect Socket.IO", reason);
-    });
-    socket.on("disconnect", async () => {
-        socket.removeAllListeners();
-        // try {
-        //     await util.leaveRoom(data.roomId, data.userId);
-        // } catch (error) {
-        //     console.error(error);
-        // }
-    });
-    socket.on("leaveRoom", async (data) => {
-        await util.leaveRoom(data.roomId, data.userId);
-        await new Promise((r) => setTimeout(r, 500));
-        const room = await Room.findOne({ roomId: data.roomId });
-        socket.leave(data.roomId);
-        if (room) {
-            io.in(data.roomId).emit("update", JSON.stringify(room));
-        }
-    });
-    socket.on("urlUpdate", async (data) => {
-        try {
-            await util.updateUrl(data.roomId, data.userId, data.currentUrl);
-            await new Promise((r) => setTimeout(r, 500));
-            const room = await Room.findOne({ roomId: data.roomId });
-            if (room) {
-                io.in(data.roomId).emit("update", JSON.stringify(room));
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    });
-    socket.on("foundPage", async (data) => {
-        try {
-            util.foundPage(data.roomId, data.userId, data.time);
-            await new Promise((r) => setTimeout(r, 500));
-            const room = await Room.findOne({ roomId: data.roomId });
-            if (room) {
-                io.in(data.roomId).emit("update", JSON.stringify(room));
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    });
-    socket.on("startGame", async (data) => {
-        await new Promise((r) => setTimeout(r, 500));
-        io.in(data.roomId).emit("gameStarted");
-    });
-    socket.on("joinRoom", async (data) => {
-        const room = await Room.findOne({ roomId: data.roomId });
-        if (room) {
-            socket.join(data.roomId);
-            io.in(data.roomId).emit("update", JSON.stringify(room));
-        }
-    });
+	app.socket = socket;
+	socket.on("error", function (reason) {
+		console.error("Unable to connect Socket.IO", reason);
+	});
+	socket.on("disconnect", async () => {
+		socket.removeAllListeners();
+		// try {
+		//     await util.leaveRoom(data.roomId, data.userId);
+		// } catch (error) {
+		//     console.error(error);
+		// }
+	});
+	socket.on("leaveRoom", async (data) => {
+		await util.leaveRoom(data.roomId, data.userId);
+		await new Promise((r) => setTimeout(r, 500));
+		const room = await Room.findOne({ roomId: data.roomId });
+		socket.leave(data.roomId);
+		if (room) {
+			io.in(data.roomId).emit("update", JSON.stringify(room));
+		}
+	});
+	socket.on("urlUpdate", async (data) => {
+		try {
+			await util.updateUrl(data.roomId, data.userId, data.currentUrl);
+			await new Promise((r) => setTimeout(r, 500));
+			const room = await Room.findOne({ roomId: data.roomId });
+			if (room) {
+				io.in(data.roomId).emit("update", JSON.stringify(room));
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	});
+	socket.on("foundPage", async (data) => {
+		try {
+			util.foundPage(data.roomId, data.userId, data.time);
+			await new Promise((r) => setTimeout(r, 500));
+			const room = await Room.findOne({ roomId: data.roomId });
+			if (room) {
+				io.in(data.roomId).emit("update", JSON.stringify(room));
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	});
+	socket.on("startGame", async (data) => {
+		await new Promise((r) => setTimeout(r, 500));
+		io.in(data.roomId).emit("gameStarted");
+	});
+	socket.on("joinRoom", async (data) => {
+		const room = await Room.findOne({ roomId: data.roomId });
+		if (room) {
+			socket.join(data.roomId);
+			io.in(data.roomId).emit("update", JSON.stringify(room));
+		}
+	});
+	socket.on("giveUp", async (data) => {
+		console.log(data);
+		try {
+			const room = await Room.findOne({ roomId: data.roomId });
+			const result = util.givenUp(data.userId, room, data.time);
+			if (room && result) {
+				io.in(data.roomId).emit("update", JSON.stringify(room));
+			}
+		} catch (error) {}
+	});
 });
 
 // Define Routes
@@ -126,13 +136,13 @@ app.set("trust proxy", true);
 
 // error handler
 app.use(function (err, req, res, next) {
-    // set locals, only providing error in development
-    res.locals.message = err.message;
-    res.locals.error = req.app.get("env") === "development" ? err : {};
+	// set locals, only providing error in development
+	res.locals.message = err.message;
+	res.locals.error = req.app.get("env") === "development" ? err : {};
 
-    // render the error page
-    res.status(err.status || 500);
-    res.render("error");
+	// render the error page
+	res.status(err.status || 500);
+	res.render("error");
 });
 
 module.exports = app;

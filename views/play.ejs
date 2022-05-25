@@ -1,132 +1,179 @@
 <%- include('partials/header') %>
 
 <div class="row">
-    <div class="roomInfo col-lg-3 col-md-12 col-sm-12 col-xs-12">
-        <div class="row">
-            <div class="col-lg-12 col-md-6 col-sm-6 col-xs-6">
-                <div class="titleContainer">
-                    <h3 class="title">Player Info</h3>
-                </div>
-                <ul id="usersList">
-
-                </ul>
-            </div>
-            <div class="col-lg-12 col-md-6 col-sm-6 col-xs-6">
-                <div class="titleContainer">
-                    <h3 class="title">Game Info</h3>
-                </div>
-                <p>Game ID - <b><%- roomId %></b></p>
-                <p>From - <b><%- startPage %></b></p>
-                <p>To - <b><%- endPage %></b></p>
-                <p id="timer">Timer - <b>00:00:00</b></p>
-                <% if (host === true) { %>
-                <button id="startButton" onClick="startGame()">Start</button>
-                <% } %>
-            </div>
-        </div>
-    </div>
-    <div class="gameContainer col-lg-9 col-md-12 col-sm-12 col-xs-12">
-        <div class="iframeContainer">
-            <iframe id="gameFrame"></iframe>
-        </div>
-        <div class="startPage">
-            <div class="jumbotron jumbotron-fluid" style="background:transparent !important">
-                <div class="container">
-                    <h1 class="display-4">Starting Soon</h1>
-                    <p class="lead">Please wait for the host to start the game</p>
-                </div>
-            </div>
-        </div>
-    </div>
+	<div class="roomInfo col-lg-3 col-md-12 col-sm-12 col-xs-12">
+		<div class="row">
+			<div class="col-lg-12 col-md-6 col-sm-6 col-xs-6">
+				<div class="titleContainer">
+					<h3 class="title">Player Info</h3>
+				</div>
+				<ul id="usersList"></ul>
+			</div>
+			<div class="col-lg-12 col-md-6 col-sm-6 col-xs-6">
+				<div class="titleContainer">
+					<h3 class="title">Game Info</h3>
+				</div>
+				<p>Game ID - <b><%- roomId %></b></p>
+				<p>From - <b><%- startPage %></b></p>
+				<p>To - <b><%- endPage %></b></p>
+				<p id="timer">Timer - <b>00:00:00</b></p>
+				<% if (host === true) { %>
+				<button id="startButton" onClick="startGame()">Start</button>
+				<% } %>
+				<button id="giveupButton" onClick="giveUp()">Give Up</button>
+			</div>
+		</div>
+	</div>
+	<div class="gameContainer col-lg-9 col-md-12 col-sm-12 col-xs-12">
+		<div class="iframeContainer">
+			<iframe id="gameFrame"></iframe>
+		</div>
+		<div class="startPage">
+			<div
+				class="jumbotron jumbotron-fluid"
+				style="background: transparent !important"
+			>
+				<div class="container">
+					<h1 class="display-4">Starting Soon</h1>
+					<p class="lead">
+						Please wait for the host to start the game
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 <script>
-    const socket = io('/', { secure: true });
-    let timer;
-    $(document).ready(() => {
-        // Add disconnect function to body
-        $('body').attr('onunload', "disconnectEvent();");
-        $('#gameFrame').attr('onLoad', 'iframeChanged()');
-        const startPage = encodeURIComponent(`<%- startPage %>`)
-        $('#gameFrame').attr('src', `/room/<%- roomId %>/wiki/${startPage}`);
-        iframeChanged();
-        socket.emit('joinRoom', { roomId: "<%- roomId %>" });
-        socket.on('update', (data) => {
-            const cleanData = JSON.parse(data);
-            const users = cleanData.users;
-            let html = [];
-            for (let i = 0; i < users.length; i++) {
-                user = users[i];
-                if (users[i].userId === "<%- userId %>") {
-                    html.push(html[0]);
-                    html[0] = (`<li class=${user.found ? "found" : ""}>${user.username} ${user.found ? '(' + user.time + ')' : ""} - ${user.currentUrl.charAt(0).toUpperCase() + user.currentUrl.slice(1)}</li>`)
-                } else {
-                    html.push(`<li class=${user.found ? "found" : ""}>${user.username} ${user.found ? '(' + user.time + ')' : ""} - ${user.currentUrl.charAt(0).toUpperCase() + user.currentUrl.slice(1)}</li>`)
-                }
-            }
-            $('#usersList').html(html.join(""));
-        })
-        socket.on('gameStarted', () => {
-            $('.startPage').remove();
-            const start = new Date();
-            timer = setInterval(() => {
-                const now = new Date();
-                const diff = now - start;
-                let min = Math.floor(diff / 60000).toString();
-                let sec = (Math.floor(diff / 1000) - (60 * min)).toString();
-                if (min.length === 1) {
-                    min = `0${min}`;
-                }
-                if (sec.length === 1) {
-                    sec = `0${sec}`;
-                }
-                let milli = diff.toString()[diff.toString().length - 3].toString() + "" + diff.toString()[diff.toString().length - 2].toString();
-                $('#timer').text(`${min}:${sec}:${milli}`);
-            }, 10);
-            $('.iframeContainer').css('display', 'block');
-        })
-    })
-    // URL Update Function (when iframe changes)
-    const iframe = document.getElementById('gameFrame');
-    iframeChanged = () => {
-        // Runs every time iframe link is changed
-        $('#gameFrame').on('load', () => {
-            const innerDoc = iframe.contentDocument || iframe.contentWindow.document;
-            let title;
-            if (innerDoc.getElementById('wikiPageTitle')) {
-                title = innerDoc.getElementById('wikiPageTitle').innerHTML;
-            } else {
-                title = "None";
-            }
+	const socket = io("/", { secure: true });
+	let timer;
+	$(document).ready(() => {
+		// Add disconnect function to body
+		$("body").attr("onunload", "disconnectEvent();");
+		$("#gameFrame").attr("onLoad", "iframeChanged()");
+		const startPage = encodeURIComponent(`<%- startPage %>`);
+		$("#gameFrame").attr("src", `/room/<%- roomId %>/wiki/${startPage}`);
+		iframeChanged();
+		socket.emit("joinRoom", { roomId: "<%- roomId %>" });
+		socket.on("update", (data) => {
+			console.log("Update");
+			const cleanData = JSON.parse(data);
+			const users = cleanData.users;
+			let html = [];
+			for (let i = 0; i < users.length; i++) {
+				console.log(users[i]);
+				user = users[i];
+				if (users[i].userId === "<%- userId %>") {
+					html.push(html[0]);
+					html[0] = `<li class=${
+						user.found ? "found" : user.givenUp ? "givenup" : ""
+					}>${user.username} ${
+						user.found || user.givenUp ? "(" + user.time + ")" : ""
+					} - ${
+						user.currentUrl.charAt(0).toUpperCase() +
+						user.currentUrl.slice(1)
+					}</li>`;
+				} else {
+					html.push(
+						`<li class=${user.found ? "found" : ""}>${
+							user.username
+						} ${user.found ? "(" + user.time + ")" : ""} - ${
+							user.currentUrl.charAt(0).toUpperCase() +
+							user.currentUrl.slice(1)
+						}</li>`
+					);
+				}
+			}
+			$("#usersList").html(html.join(""));
+		});
+		socket.on("gameStarted", () => {
+			$(".startPage").remove();
+			const start = new Date();
+			timer = setInterval(() => {
+				const now = new Date();
+				const diff = now - start;
+				let min = Math.floor(diff / 60000).toString();
+				let sec = (Math.floor(diff / 1000) - 60 * min).toString();
+				if (min.length === 1) {
+					min = `0${min}`;
+				}
+				if (sec.length === 1) {
+					sec = `0${sec}`;
+				}
+				let milli =
+					diff.toString()[diff.toString().length - 3].toString() +
+					"" +
+					diff.toString()[diff.toString().length - 2].toString();
+				$("#timer").text(`${min}:${sec}:${milli}`);
+			}, 10);
+			$(".iframeContainer").css("display", "block");
+			// Show/Hide respective buttons
+			$("#giveupButton").css("display", "block");
+			$("#startButton").css("display", "none");
+		});
+	});
+	// URL Update Function (when iframe changes)
+	const iframe = document.getElementById("gameFrame");
+	iframeChanged = () => {
+		// Runs every time iframe link is changed
+		$("#gameFrame").on("load", () => {
+			const innerDoc =
+				iframe.contentDocument || iframe.contentWindow.document;
+			let title;
+			if (innerDoc.getElementById("wikiPageTitle")) {
+				title = innerDoc.getElementById("wikiPageTitle").innerHTML;
+			} else {
+				title = "None";
+			}
 
-            // Emit URL update socket event
-            socket.emit('urlUpdate', {
-                roomId: "<%- roomId  %>",
-                userId: "<%- userId %>",
-                currentUrl: title
-            })
-            if (title.toLowerCase() === "<%- endPage %>".toLowerCase()) {
-                clearInterval(timer);
-                socket.emit('foundPage', {
-                    roomId: "<%- roomId %>",
-                    userId: "<%- userId %>",
-                    time: $('#timer').text(),
-                })
-            }
-        })
-    }
-    startGame = () => {
-        socket.emit('startGame', { roomId: "<%- roomId %>" });
-    }
-    $(window).on('unload', function () {
-        disconnectEvent();
-    });
-    disconnectEvent = () => {
-        socket.emit('leaveRoom', {
-            roomId: "<%- roomId %>",
-            userId: "<%- userId %>"
-        })
-    }
-
+			// Emit URL update socket event
+			socket.emit("urlUpdate", {
+				roomId: "<%- roomId  %>",
+				userId: "<%- userId %>",
+				currentUrl: title,
+			});
+			// Win condition check
+			if (title.toLowerCase() === "<%- endPage %>".toLowerCase()) {
+				finish(true);
+			} else {
+				// Add code here for adding current page to page history
+			}
+		});
+	};
+	finish = (foundOrGivenUp) => {
+		// Remove give up button
+		$("#giveupButton").css("display", "none");
+		// Stop timer
+		clearInterval(timer);
+		// Emit win or give up event
+		if (foundOrGivenUp) {
+			socket.emit("foundPage", {
+				roomId: "<%- roomId %>",
+				userId: "<%- userId %>",
+				time: $("#timer").text(),
+			});
+		} else {
+			socket.emit("giveUp", {
+				roomId: "<%- roomId %>",
+				userId: "<%- userId %>",
+				time: $("#timer").text(),
+			});
+		}
+	};
+	startGame = () => {
+		socket.emit("startGame", { roomId: "<%- roomId %>" });
+	};
+	giveUp = () => {
+		finish(false);
+	};
+	$(window).on("unload", function () {
+		disconnectEvent();
+	});
+	disconnectEvent = () => {
+		socket.emit("leaveRoom", {
+			roomId: "<%- roomId %>",
+			userId: "<%- userId %>",
+		});
+	};
 </script>
 
 <%- include('partials/footer') %>
