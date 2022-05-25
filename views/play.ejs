@@ -74,9 +74,13 @@
 					}</li>`;
 				} else {
 					html.push(
-						`<li class=${user.found ? "found" : ""}>${
-							user.username
-						} ${user.found ? "(" + user.time + ")" : ""} - ${
+						`<li class=${
+							user.found ? "found" : user.givenUp ? "givenup" : ""
+						}>${user.username} ${
+							user.found || user.givenUp
+								? "(" + user.time + ")"
+								: ""
+						} - ${
 							user.currentUrl.charAt(0).toUpperCase() +
 							user.currentUrl.slice(1)
 						}</li>`
