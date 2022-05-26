@@ -325,6 +325,7 @@ iframe {
 }
 
 .roomInfo {
+	height: 80%;
 	padding: 5px 5px 5px 20px;
 }
 
@@ -344,11 +345,21 @@ iframe {
 	color: rgb(200, 37, 37);
 	font-weight: bold;
 }
+.userHistory {
+	max-height: 400px;
+}
+.userHistory > ul {
+	list-style: none;
+}
 #timer {
 	font-size: 1.3rem;
 }
 .row {
 	margin-right: 0;
+}
+.userHistory {
+	height: 60%;
+	overflow-y: auto;
 }
 #startButton,
 #giveupButton {

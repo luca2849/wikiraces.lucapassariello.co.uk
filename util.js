@@ -106,28 +106,36 @@ leaveRoom = async (roomId, userId) => {
 };
 
 // Updates the user's current page in a race in the database
-updateUrl = async (roomId, userId, url) => {
-	await Room.findOne({ roomId }, async (err, foundObject) => {
-		if (err) {
-			console.error(err);
-		} else {
-			if (!foundObject) {
-				console.log("Room Not Found");
-			} else {
-				let foundIdx;
-				for (let i = 0; i < foundObject.users.length; i++) {
-					if (foundObject.users[i].userId === userId) {
-						foundIdx = i;
-						break;
-					}
-				}
-				if (foundIdx || foundIdx === 0) {
-					foundObject.users[foundIdx].currentUrl = url;
-					await foundObject.save();
-				}
-			}
+updateUrl = async (room, userId, url) => {
+	if (!room) return null;
+	const user = room.users.filter((user) => user.userId === userId);
+	// if (user.history && user.history[user.history.length] === url) {
+	// 	await Room.findOneAndUpdate(
+	// 		{ _id: room._id, "users.userId": userId },
+	// 		{
+	// 			$set: { "users.$.currentUrl": url },
+	// 		}
+	// 	);
+	// } else {
+	await Room.findOneAndUpdate(
+		{ _id: room._id, "users.userId": userId },
+		{
+			$addToSet: { "users.$.history": url },
+			$set: { "users.$.currentUrl": url },
 		}
-	});
+	);
+	// }
+
+	// if (foundIdx || foundIdx === 0) {
+	// 	room.users[foundIdx].currentUrl = url;
+	// 	if (room.users[foundIdx].history.length > 0) {
+	// 		room.users[foundIdx].history.append(url);
+	// 	} else {
+	// 		room.users[foundIdx].history = [url];
+	// 	}
+	// 	room.update({}, { $unset: { _v: 1 } });
+	// 	await room.save();
+	// }
 };
 
 // Updates the user to show they have reached the finishing page

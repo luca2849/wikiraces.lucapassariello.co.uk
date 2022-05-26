@@ -1,71 +1,96 @@
 <%- include('partials/header') %>
 <div class="container">
-    <div class="titleContainer">
-        <h2 class="title">Create Game</h2>
-    </div>
-    <form method="post" action="" class="roomForm" id="createForm" autocomplete="off">
-        <div class="form-group">
-            <label for="startPage">Game ID</label>
-            <input type="text" id="roomId" name="roomId" maxlength="5" minlength="5" required="required" />
-        </div>
-        <div class="form-group">
-            <label for="startPage">Start Page</label>
-            <input type="text" id="startPage" list="startPageList" name="startPage" required="required" />
-            <datalist id="startPageList"></datalist>
-        </div>
-        <div class="form-group">
-            <label for="endPage">End Page</label>
-            <input type="text" id="endPage" list="endPageList" name="endPage" required="required" />
-            <datalist id="endPageList"></datalist>
-        </div>
-        <div class="form-group">
-            <input type="submit" value="Create Game" />
-        </div>
-        <div id="createRoomError" class="alert alert-danger">
-        </div>
-    </form>
+	<div class="titleContainer">
+		<h2 class="title">Create Game</h2>
+	</div>
+	<form
+		method="post"
+		action=""
+		class="roomForm"
+		id="createForm"
+		autocomplete="off"
+	>
+		<div class="form-group">
+			<label for="startPage">Game ID</label>
+			<input
+				type="text"
+				id="roomId"
+				name="roomId"
+				maxlength="5"
+				minlength="5"
+				required="required"
+			/>
+		</div>
+		<div class="form-group">
+			<label for="startPage">Start Page</label>
+			<input
+				type="text"
+				id="startPage"
+				list="startPageList"
+				name="startPage"
+				required="required"
+			/>
+			<datalist id="startPageList"></datalist>
+		</div>
+		<div class="form-group">
+			<label for="endPage">End Page</label>
+			<input
+				type="text"
+				id="endPage"
+				list="endPageList"
+				name="endPage"
+				required="required"
+			/>
+			<datalist id="endPageList"></datalist>
+		</div>
+		<div class="form-group">
+			<input type="submit" value="Create Game" />
+		</div>
+		<div id="createRoomError" class="alert alert-danger"></div>
+	</form>
 </div>
 <script>
-    $(document).ready(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const error = urlParams.get('error');
-        if (error == 1) {
-            $('#createRoomError').css('display', 'block');
-            $('#createRoomError').text("One or more pages you entered did not exist");
-        }
-        $('#roomId').val("<%- roomId %>");
+	$(document).ready(() => {
+		const urlParams = new URLSearchParams(window.location.search);
+		const error = urlParams.get("error");
+		if (error == 1) {
+			$("#createRoomError").css("display", "block");
+			$("#createRoomError").text(
+				"One or more pages you entered did not exist"
+			);
+		}
+		$("#roomId").val("<%- roomId %>");
 
-        $('#startPage').on('keypress', () => {
-            const value = $('#startPage').val();
-            $.ajax({
-                url: `https://en.wikipedia.org/w/api.php?origin=*&action=opensearch&search=${value}`,
-                success: (result) => {
-                    let html = ``;
-                    const textOptions = result[1];
-                    const wikiLinks = result[3];
-                    textOptions.map((value, index) => {
-                        html += `<option label="${wikiLinks[index]}" value="${value}">`
-                    })
-                    $('#startPageList').html(html);
-                }
-            })
-        })
-        $('#endPage').on('keypress', () => {
-            const value = $('#endPage').val();
-            $.ajax({
-                url: `https://en.wikipedia.org/w/api.php?origin=*&action=opensearch&search=${value}`,
-                success: (result) => {
-                    let html = ``;
-                    const textOptions = result[1];
-                    const wikiLinks = result[3];
-                    textOptions.map((value, index) => {
-                        html += `<option label="${wikiLinks[index]}" value="${value}">`
-                    })
-                    $('#endPageList').html(html);
-                }
-            })
-        })
-
-    })
+		$("#startPage").on("keypress", () => {
+			const value = $("#startPage").val();
+			$.ajax({
+				url: `https://en.wikipedia.org/w/api.php?origin=*&action=opensearch&search=${value}`,
+				success: (result) => {
+					let html = ``;
+					const textOptions = result[1];
+					const wikiLinks = result[3];
+					textOptions.forEach((value, index) => {
+						html += `<option label="${wikiLinks[index]}" value="${value}">`;
+					});
+					$("#startPageList").html(html);
+				},
+			});
+		});
+		$("#endPage").on("keypress", () => {
+			const value = $("#endPage").val();
+			$.ajax({
+				url: `https://en.wikipedia.org/w/api.php?origin=*&action=opensearch&search=${value}`,
+				success: (result) => {
+					let html = ``;
+					const textOptions = result[1];
+					const wikiLinks = result[3];
+					textOptions.forEach((value, index) => {
+						html += `<option label="${wikiLinks[index]}" value="${value}">`;
+					});
+					$("#endPageList").html(html);
+				},
+			});
+		});
+	});
 </script>
 <%- include('partials/footer') %>

@@ -66,7 +66,8 @@ io.on("connection", (socket) => {
 	});
 	socket.on("urlUpdate", async (data) => {
 		try {
-			await util.updateUrl(data.roomId, data.userId, data.currentUrl);
+			const roomCheck = await Room.findOne({ roomId: data.roomId });
+			await util.updateUrl(roomCheck, data.userId, data.currentUrl);
 			await new Promise((r) => setTimeout(r, 500));
 			const room = await Room.findOne({ roomId: data.roomId });
 			if (room) {
@@ -100,7 +101,6 @@ io.on("connection", (socket) => {
 		}
 	});
 	socket.on("giveUp", async (data) => {
-		console.log(data);
 		try {
 			const room = await Room.findOne({ roomId: data.roomId });
 			const result = util.givenUp(data.userId, room, data.time);

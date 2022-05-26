@@ -9,7 +9,7 @@
 				</div>
 				<ul id="usersList"></ul>
 			</div>
-			<div class="col-lg-12 col-md-6 col-sm-6 col-xs-6">
+			<div class="mainInfo col-lg-12 col-md-6 col-sm-6 col-xs-6">
 				<div class="titleContainer">
 					<h3 class="title">Game Info</h3>
 				</div>
@@ -21,6 +21,12 @@
 				<button id="startButton" onClick="startGame()">Start</button>
 				<% } %>
 				<button id="giveupButton" onClick="giveUp()">Give Up</button>
+				<div class="titleContainer">
+					<h3 class="title">History</h3>
+				</div>
+				<div class="userHistory">
+					<ul class="userHistoryList"></ul>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -58,11 +64,13 @@
 			console.log("Update");
 			const cleanData = JSON.parse(data);
 			const users = cleanData.users;
+			let currentUserIndex;
 			let html = [];
+			// Update player info area
 			for (let i = 0; i < users.length; i++) {
-				console.log(users[i]);
 				user = users[i];
 				if (users[i].userId === "<%- userId %>") {
+					currentUserIndex = i;
 					html.push(html[0]);
 					html[0] = `<li class=${
 						user.found ? "found" : user.givenUp ? "givenup" : ""
@@ -88,6 +96,18 @@
 				}
 			}
 			$("#usersList").html(html.join(""));
+			// Update history area
+			$(".userHistoryList").html();
+			userHistory = users[currentUserIndex].history;
+			console.log(userHistory);
+			let historyHtml = [];
+			for (let i = 0; i < userHistory.length; i++) {
+				historyHtml.push(`<li>${userHistory[i]}</li>`);
+			}
+			$(".userHistoryList").html(historyHtml.join(""));
+			const list = $(".userHistoryList");
+			const listItems = list.children("li");
+			list.append(listItems.get().reverse());
 		});
 		socket.on("gameStarted", () => {
 			$(".startPage").remove();
@@ -128,7 +148,6 @@
 			} else {
 				title = "None";
 			}
-
 			// Emit URL update socket event
 			socket.emit("urlUpdate", {
 				roomId: "<%- roomId  %>",
@@ -138,8 +157,6 @@
 			// Win condition check
 			if (title.toLowerCase() === "<%- endPage %>".toLowerCase()) {
 				finish(true);
-			} else {
-				// Add code here for adding current page to page history
 			}
 		});
 	};

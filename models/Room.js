@@ -42,6 +42,7 @@ const RoomSchema = new mongoose.Schema({
 				type: Boolean,
 				required: true,
 			},
+			history: [{ type: String }],
 		},
 	],
 });
