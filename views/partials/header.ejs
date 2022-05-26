@@ -1,59 +1,85 @@
 <!DOCTYPE html>
 <html>
+	<head>
+		<title>Wikipedia Races</title>
+		<!-- SocketIO -->
+		<script
+			src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.js"
+			integrity="sha512-9mpsATI0KClwt+xVZfbcf2lJ8IFBAwsubJ6mI3rtULwyM3fBmQFzj0It4tGqxLOGQwGfJdk/G+fANnxfq9/cew=="
+			crossorigin="anonymous"
+			referrerpolicy="no-referrer"
+		></script>
+		<!-- Wiki Stylesheets -->
+		<link
+			rel="stylesheet"
+			href="//en.wikipedia.org/w/load.php?modules=mediawiki.legacy.commonPrint,shared|mediawiki.skinning.elements|mediawiki.skinning.content|mediawiki.skinning.interface|skins.vector.styles|site|mediawiki.skinning.content.parsoid|ext.cite.style&amp;only=styles&amp;skin=vector"
+		/>
+		<link
+			rel="stylesheet"
+			href="//en.wikipedia.org/w/load.php?lang=en&amp;modules=site.styles&amp;only=styles&amp;skin=vector"
+		/>
+		<!-- jQuery -->
+		<script src="/static/js/jquery.js"></script>
+		<!-- Bootstrap -->
+		<link
+			rel="stylesheet"
+			href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+		/>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+		<!-- Font Awesome -->
+		<link
+			rel="stylesheet"
+			href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+		/>
+		<!-- Local Styleheet -->
+		<link rel="stylesheet" href="/static/style/style.css" />
+		<!-- Media Queries Stylesheet -->
+		<link rel="stylesheet" href="/static/style/media.css" />
+		<!-- Favicon -->
+		<link rel="icon" href="/static//img/favicon.ico" />
+	</head>
 
-<head>
-    <title>Wikipedia Races</title>
-    <!-- SocketIO -->
-    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"
-        integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
-    <!-- Wiki Stylesheets -->
-    <link rel="stylesheet"
-        href="//en.wikipedia.org/w/load.php?modules=mediawiki.legacy.commonPrint,shared|mediawiki.skinning.elements|mediawiki.skinning.content|mediawiki.skinning.interface|skins.vector.styles|site|mediawiki.skinning.content.parsoid|ext.cite.style&amp;only=styles&amp;skin=vector" />
-    <link rel="stylesheet"
-        href="//en.wikipedia.org/w/load.php?lang=en&amp;modules=site.styles&amp;only=styles&amp;skin=vector" />
-    <!-- jQuery -->
-    <script src="/static/js/jquery.js"></script>
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" />
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
-    <!-- Local Styleheet -->
-    <link rel="stylesheet" href="/static/style/style.css" />
-    <!-- Media Queries Stylesheet -->
-    <link rel="stylesheet" href="/static/style/media.css" />
-    <!-- Favicon -->
-    <link rel="icon" href="/static//img/favicon.ico">
-</head>
-
-<body>
-    <nav class="navbar">
-        <div class="navbar-left">
-            <div class="brand">
-                <a href="/">WikiRaces</a>
-            </div>
-            <div class="links">
-                <ul>
-                    <li><a class="link" href="/">Home</a></li>
-                    <li><a class="link" href="/room/join">Join a Game</a></li>
-                    <li><a class="link" href="/room/create">Create a Game</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="openButtonContainer">
-            <a class="fa fa-bars openIcon"></a>
-        </div>
-    </nav>
-    <div class="side_navigation">
-        <a class="fa fa-close closeIcon"></a>
-        <p class="side_title">WikiRaces</p>
-        <a class="side_btn" href="/">Home</a>
-        <a class="side_btn" href="/room/join">Join a Game</a>
-        <a class="side_btn" href="/room/create">Create a Game</a>
-    </div>
-    <div class="cookieWarning">
-        <p>We Use Cookies</p>
-        <p>By using our site, you agree to our use of cookies to deliver a better site experience.</p>
-        <p>Click <a href="/policies">here</a> to view our privacy policy.</p>
-        <button onClick="cookieAck()">Got it!</button>
-    </div>
+	<body>
+		<nav class="navbar">
+			<div class="navbar-left">
+				<div class="brand">
+					<a href="/">WikiRaces</a>
+				</div>
+				<div class="links">
+					<ul>
+						<li><a class="link" href="/">Home</a></li>
+						<li>
+							<a class="link" href="/room/join">Join a Game</a>
+						</li>
+						<li>
+							<a class="link" href="/room/create"
+								>Create a Game</a
+							>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<div class="openButtonContainer">
+				<a class="fa fa-bars openIcon"></a>
+			</div>
+		</nav>
+		<div class="side_navigation">
+			<a class="fa fa-close closeIcon"></a>
+			<p class="side_title">WikiRaces</p>
+			<a class="side_btn" href="/">Home</a>
+			<a class="side_btn" href="/room/join">Join a Game</a>
+			<a class="side_btn" href="/room/create">Create a Game</a>
+		</div>
+		<div class="cookieWarning">
+			<p>We Use Cookies</p>
+			<p>
+				By using our site, you agree to our use of cookies to deliver a
+				better site experience.
+			</p>
+			<p>
+				Click <a href="/policies">here</a> to view our privacy policy.
+			</p>
+			<button onClick="cookieAck()">Got it!</button>
+		</div>
+	</body>
+</html>
