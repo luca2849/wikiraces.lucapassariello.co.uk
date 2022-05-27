@@ -2,17 +2,17 @@ const express = require("express");
 const app = express();
 const socketio = require("socket.io");
 const io = socketio();
-const morgan = require("morgan");
 app.io = io;
 const session = require("express-session");
 const bodyParser = require("body-parser");
 const connectDB = require("./config/db.js");
 const util = require("./util.js");
+const config = require("config");
 
 // Init Session
 app.use(
 	session({
-		secret: "F66FCCED1BEA9C74",
+		secret: config.get("SOCKET_IO_SECRET"),
 		saveUninitialized: true,
 		resave: true,
 	})
@@ -49,19 +49,11 @@ io.on("connection", (socket) => {
 	});
 	socket.on("disconnect", async () => {
 		socket.removeAllListeners();
-		// try {
-		//     await util.leaveRoom(data.roomId, data.userId);
-		// } catch (error) {
-		//     console.error(error);
-		// }
-	});
-	socket.on("leaveRoom", async (data) => {
-		await util.leaveRoom(data.roomId, data.userId);
-		await new Promise((r) => setTimeout(r, 500));
-		const room = await Room.findOne({ roomId: data.roomId });
-		socket.leave(data.roomId);
-		if (room) {
-			io.in(data.roomId).emit("update", JSON.stringify(room));
+		try {
+			// Remove user from room
+			await util.leaveRoom(socket.roomId, socket.userId);
+		} catch (error) {
+			console.error(error);
 		}
 	});
 	socket.on("urlUpdate", async (data) => {
@@ -71,7 +63,7 @@ io.on("connection", (socket) => {
 			await new Promise((r) => setTimeout(r, 500));
 			const room = await Room.findOne({ roomId: data.roomId });
 			if (room) {
-				io.in(data.roomId).emit("update", JSON.stringify(room));
+				io.to(data.roomId).emit("update", JSON.stringify(room));
 			}
 		} catch (error) {
 			console.error(error);
@@ -83,21 +75,23 @@ io.on("connection", (socket) => {
 			await new Promise((r) => setTimeout(r, 500));
 			const room = await Room.findOne({ roomId: data.roomId });
 			if (room) {
-				io.in(data.roomId).emit("update", JSON.stringify(room));
+				io.to(data.roomId).emit("update", JSON.stringify(room));
 			}
 		} catch (error) {
 			console.error(error);
 		}
 	});
 	socket.on("startGame", async (data) => {
-		await new Promise((r) => setTimeout(r, 500));
-		io.in(data.roomId).emit("gameStarted");
+		io.to(data.roomId).emit("gameStarted");
 	});
 	socket.on("joinRoom", async (data) => {
 		const room = await Room.findOne({ roomId: data.roomId });
+		// Add user details to socket for use when disconnecting
+		socket.userId = data.userId;
+		socket.roomId = data.roomId;
 		if (room) {
 			socket.join(data.roomId);
-			io.in(data.roomId).emit("update", JSON.stringify(room));
+			io.to(data.roomId).emit("update", JSON.stringify(room));
 		}
 	});
 	socket.on("giveUp", async (data) => {
@@ -105,7 +99,7 @@ io.on("connection", (socket) => {
 			const room = await Room.findOne({ roomId: data.roomId });
 			const result = util.givenUp(data.userId, room, data.time);
 			if (room && result) {
-				io.in(data.roomId).emit("update", JSON.stringify(room));
+				io.to(data.roomId).emit("update", JSON.stringify(room));
 			}
 		} catch (error) {}
 	});

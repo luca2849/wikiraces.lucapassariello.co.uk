@@ -53,15 +53,15 @@
 	const socket = io("/", { secure: true });
 	let timer;
 	$(document).ready(() => {
-		// Add disconnect function to body
-		$("body").attr("onunload", "disconnectEvent();");
 		$("#gameFrame").attr("onLoad", "iframeChanged()");
 		const startPage = encodeURIComponent(`<%- startPage %>`);
 		$("#gameFrame").attr("src", `/room/<%- roomId %>/wiki/${startPage}`);
 		iframeChanged();
-		socket.emit("joinRoom", { roomId: "<%- roomId %>" });
+		socket.emit("joinRoom", {
+			roomId: "<%- roomId %>",
+			userId: "<%- userId %>",
+		});
 		socket.on("update", (data) => {
-			console.log("Update");
 			const cleanData = JSON.parse(data);
 			const users = cleanData.users;
 			let currentUserIndex;
@@ -99,7 +99,6 @@
 			// Update history area
 			$(".userHistoryList").html();
 			userHistory = users[currentUserIndex].history;
-			console.log(userHistory);
 			let historyHtml = [];
 			for (let i = 0; i < userHistory.length; i++) {
 				historyHtml.push(`<li>${userHistory[i]}</li>`);
@@ -185,15 +184,6 @@
 	};
 	giveUp = () => {
 		finish(false);
-	};
-	$(window).on("unload", function () {
-		disconnectEvent();
-	});
-	disconnectEvent = () => {
-		socket.emit("leaveRoom", {
-			roomId: "<%- roomId %>",
-			userId: "<%- userId %>",
-		});
 	};
 </script>
 

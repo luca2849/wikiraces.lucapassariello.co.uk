@@ -1,5 +1,4 @@
 const axios = require(`axios`);
-const fs = require("fs");
 const Room = require("./models/Room");
 
 // Function for creating IDs
@@ -56,53 +55,49 @@ str_pad = (string) => {
 joinRoom = async (roomId, userId, username) => {
 	try {
 		const room = await Room.findOne({ roomId: roomId });
+		if (!room) {
+			console.log("Room not found");
+			return;
+		}
+		room.users.push({
+			userId: userId,
+			currentUrl: "",
+			username: username,
+			host: room.users.length === 0,
+		});
+		await room.save();
 	} catch (error) {
 		console.error(error);
 		return;
 	}
-	if (!room) {
-		console.log("Room not found");
-		return;
-	}
-	room.users.push({
-		userId: userId,
-		currentUrl: "",
-		username: username,
-		host: room.users.length === 0,
-	});
-	await room.save();
 };
 
-// Method for joining a room on the back-end
+// Method for leaving a room on the back-end
 leaveRoom = async (roomId, userId) => {
-	await Room.findOne(
-		{ roomId: roomId.toUpperCase() },
-		async (err, foundObject) => {
-			if (err) {
-				console.error(err);
-			} else {
-				if (!foundObject) {
-					console.log("Room not found");
-				} else {
-					let foundIdx = null;
-					for (let i = 0; i < foundObject.users.length; i++) {
-						if (foundObject.users[i].userId === userId) {
-							foundIdx = i;
-							break;
-						}
-					}
-					if (foundIdx !== null) {
-						foundObject.users.splice(foundIdx, 1);
-						if (foundObject.users.length === 0) {
-							await Room.deleteOne({ roomId });
-						} else {
-							await foundObject.save();
-						}
-					}
-				}
+	// rewrite this with filter for removing user
+	try {
+		const room = await Room.findOne({ roomId: roomId.toUpperCase() });
+		if (!room) {
+			console.error("Room not found");
+			throw "Room not found";
+		}
+		const newRoomUsers = room.users.filter(
+			(user) => user.userId !== userId
+		);
+		if (newRoomUsers.length > 0) {
+			room.users = newRoomUsers;
+			room.save();
+		} else {
+			try {
+				await Room.deleteOne({ roomId: roomId.toUpperCase() });
+			} catch (error) {
+				throw `Internal server error - ${error}`;
 			}
 		}
-	);
+	} catch (error) {
+		console.error(error);
+		throw `Internal server error - ${error}`;
+	}
 };
 
 // Updates the user's current page in a race in the database
