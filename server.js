@@ -1,7 +1,9 @@
 const express = require("express");
 const app = express();
 const socketio = require("socket.io");
-const io = socketio();
+const io = socketio({
+	allowEIO3: true
+});
 app.io = io;
 const session = require("express-session");
 const bodyParser = require("body-parser");
